@@ -1,0 +1,709 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#020617">
+    
+    <!-- PWA & SEO Meta Tags -->
+    <title>محفظتي الذكية | Smart Wallet</title>
+    <meta name="description" content="تطبيق ذكي وسهل لإدارة مصاريفك، دخلك، وديونك الشخصية.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        numbers: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 70%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .credit-card {
+            background: linear-gradient(135deg, #4f46e5, #c026d3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.5);
+        }
+
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 6s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        
+        .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+
+        ::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .modal-sheet { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform: translateY(100%); }
+        .modal-active .modal-sheet { transform: translateY(0); }
+        
+        .modal-overlay { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
+        .modal-active.modal-overlay { opacity: 1; pointer-events: auto; }
+
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+    </style>
+</head>
+
+<body class="pb-40 pt-safe selection:bg-indigo-500/30">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 glass-panel bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transition-all duration-300 transform -translate-y-24 opacity-0 z-[100] flex items-center gap-3 font-bold text-sm w-max max-w-[90%] border-t border-white/10">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMsg">رسالة</span>
+    </div>
+
+    <datalist id="peopleNamesList"></datalist>
+
+    <div class="w-full max-w-md mx-auto relative mt-6 px-4">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-wallet text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold leading-tight text-white/95">محفظتي</h1>
+                    <p class="text-[11px] text-indigo-300 tracking-widest font-numbers">SMART WALLET</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="haptic(); exportData()" title="تصدير بيانات" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-90"><i class="fa-solid fa-cloud-arrow-down text-indigo-300"></i></button>
+                <button onclick="haptic(); document.getElementById('importFile').click()" title="استيراد بيانات" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-90"><i class="fa-solid fa-cloud-arrow-up text-fuchsia-300"></i></button>
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+            </div>
+        </header>
+
+        <!-- Main Card -->
+        <div class="credit-card rounded-[2rem] p-6 mb-8 text-white animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div class="w-full max-w-[75%]">
+                    <p class="text-white/80 text-sm font-semibold mb-1">الرصيد المتاح</p>
+                    <h2 class="text-4xl font-bold font-numbers tracking-tight drop-shadow-md truncate" id="totalBalance">0.00</h2>
+                </div>
+                <i class="fa-brands fa-nfc-symbol text-3xl text-white/40 drop-shadow-lg"></i>
+            </div>
+            <div class="flex justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
+                <div>
+                    <p class="text-white/80 text-[12px] mb-1 flex items-center gap-1"><i class="fa-solid fa-circle-arrow-down text-emerald-300"></i> إجمالي الدخل</p>
+                    <p class="text-lg font-bold font-numbers truncate max-w-[120px]" id="totalIncome">0.00</p>
+                </div>
+                <div class="text-left">
+                    <p class="text-white/80 text-[12px] mb-1 flex items-center gap-1 justify-end">المصروفات <i class="fa-solid fa-circle-arrow-up text-rose-300"></i></p>
+                    <p class="text-lg font-bold font-numbers truncate max-w-[120px]" id="totalExpense">0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lists Area -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="flex justify-between items-center mb-5 px-1">
+                <h3 id="listTitle" class="text-lg font-bold text-white/90">آخر المعاملات</h3>
+                <span id="listCount" class="text-xs font-bold font-numbers text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">0</span>
+            </div>
+            <div id="transactionsList" class="space-y-3 pb-8"></div>
+            <div id="debtsList" class="space-y-3 pb-8 hidden"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 w-full glass-panel bg-slate-900/95 border-t border-white/5 pb-safe pt-2 px-8 flex justify-between items-center z-40 rounded-t-3xl">
+        <button onclick="haptic(); switchTab('transactions')" id="nav-tx" class="flex flex-col items-center gap-1.5 text-indigo-400 w-16 transition-colors mb-2 relative">
+            <div id="nav-tx-indicator" class="absolute -top-3 w-8 h-1 bg-indigo-500 rounded-b-full transition-opacity"></div>
+            <i class="fa-solid fa-money-bill-transfer text-xl mt-1"></i>
+            <span class="text-[10px] font-bold">السجل</span>
+        </button>
+
+        <div class="relative -top-6" id="fabContainer">
+            <button onclick="haptic(); toggleActionMenu(event)" class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] text-white text-2xl hover:scale-105 active:scale-90 transition-all duration-300 border-4 border-[#020617]">
+                <i class="fa-solid fa-plus transition-transform duration-300" id="plusIcon"></i>
+            </button>
+
+            <!-- FAB Menu -->
+            <div id="actionMenu" class="absolute bottom-20 left-1/2 -translate-x-1/2 flex-col gap-3 hidden scale-95 opacity-0 transition-all duration-200 origin-bottom">
+                <button onclick="haptic(); openModal('transactionModal')" class="glass-panel bg-slate-800 w-48 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-slate-700 active:scale-95 shadow-xl border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-emerald-400"></i></div>
+                    إضافة معاملة
+                </button>
+                <button onclick="haptic(); openModal('debtModal')" class="glass-panel bg-slate-800 w-48 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-slate-700 active:scale-95 shadow-xl border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center"><i class="fa-solid fa-handshake text-orange-400"></i></div>
+                    تسجيل دين
+                </button>
+            </div>
+        </div>
+
+        <button onclick="haptic(); switchTab('debts')" id="nav-debts" class="flex flex-col items-center gap-1.5 text-gray-500 hover:text-indigo-300 w-16 transition-colors mb-2 relative">
+            <div id="nav-debts-indicator" class="absolute -top-3 w-8 h-1 bg-indigo-500 rounded-b-full opacity-0 transition-opacity"></div>
+            <i class="fa-solid fa-users-rectangle text-xl mt-1"></i>
+            <span class="text-[10px] font-bold">الديون</span>
+        </button>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" onclick="closeModal('transactionModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet max-h-[90vh] overflow-y-auto hide-scrollbar border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.7)]">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">معاملة جديدة</h3>
+                <button type="button" onclick="haptic(); closeModal('transactionModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="txForm" onsubmit="addTransaction(event)">
+                <div class="flex bg-slate-800 rounded-2xl p-1.5 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="expense" checked class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-rose-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-rose-500/30">مصروف</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="income" class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-emerald-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-emerald-500/30">دخل</div>
+                    </label>
+                </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <input type="date" id="txDate" required class="flex-1 bg-slate-800 border border-white/5 py-3.5 px-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all text-sm">
+                </div>
+
+                <input type="number" id="txAmount" inputmode="decimal" placeholder="المبلغ (مثال: 150.50)" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-numbers text-xl rounded-2xl transition-all" step="any" min="0.01">
+                <input type="text" id="txCategory" placeholder="التصنيف (مثال: طعام، مواصلات، راتب...)" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-8 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all text-sm">
+                
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-95">حفظ المعاملة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Debt Modal -->
+    <div id="debtModal" onclick="closeModal('debtModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet max-h-[90vh] overflow-y-auto hide-scrollbar border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.7)]">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">تسجيل دين</h3>
+                <button type="button" onclick="haptic(); closeModal('debtModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="debtForm" onsubmit="addDebt(event)">
+                <div class="flex bg-slate-800 rounded-2xl p-1.5 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="lent" checked class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-blue-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-xs sm:text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-blue-500/30">أقرضته (لي عنده)</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="borrowed" class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-orange-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-xs sm:text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-orange-500/30">استلفت منه (عليّ له)</div>
+                    </label>
+                </div>
+
+                <input type="date" id="debtDate" required class="w-full bg-slate-800 border border-white/5 py-3.5 px-4 mb-4 outline-none rounded-2xl text-sm focus:border-indigo-500">
+
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-user absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="debtPerson" list="peopleNamesList" placeholder="اسم الشخص" required autocomplete="off" class="w-full bg-slate-800 border border-white/5 py-4 pr-12 pl-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all">
+                </div>
+
+                <input type="number" id="debtAmount" inputmode="decimal" placeholder="المبلغ الكلي 0.00" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-numbers text-xl rounded-2xl transition-all" step="any" min="0.01">
+
+                <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-2xl mb-8 border border-white/5">
+                    <div>
+                        <p class="font-bold text-sm text-white">تحديث رصيد المحفظة؟</p>
+                        <p class="text-[10px] text-gray-400 mt-1">سيتم الخصم/الإضافة من رصيدك الحالي</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer" onchange="haptic()">
+                        <input type="checkbox" id="affectWalletToggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-600 rounded-full peer rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-95">حفظ الدين</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Repayment Modal -->
+    <div id="repaymentModal" onclick="closeModal('repaymentModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet shadow-[0_-10px_40px_rgba(0,0,0,0.7)] border-t border-white/10">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-emerald-400">تسديد دفعة</h3>
+                    <p id="repaymentPersonName" class="text-xs text-gray-400 mt-1">لصالح...</p>
+                </div>
+                <button type="button" onclick="haptic(); closeModal('repaymentModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="repayForm" onsubmit="addRepayment(event)">
+                <input type="hidden" id="repayDebtId">
+                <input type="date" id="repayDate" required class="w-full bg-slate-800 border border-white/5 py-3.5 px-4 mb-4 outline-none rounded-2xl text-sm focus:border-emerald-500">
+
+                <div class="relative mb-4 bg-slate-800 rounded-2xl p-4 border border-white/5">
+                    <div class="flex justify-between text-xs text-gray-400 mb-2">
+                        <span>المبلغ المسدد</span>
+                        <span>المتبقي: <span id="repayMaxAmount" class="font-bold font-numbers text-white"></span></span>
+                    </div>
+                    <input type="number" id="repayAmount" inputmode="decimal" placeholder="0.00" required class="w-full bg-transparent outline-none font-numbers text-3xl text-emerald-400" step="any" min="0.01">
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-2xl mb-8 border border-white/5">
+                    <div>
+                        <p class="font-bold text-sm">إيداع/خصم من المحفظة؟</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer" onchange="haptic()">
+                        <input type="checkbox" id="repayAffectWallet" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-600 rounded-full peer rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-500/30 transition-all active:scale-95">تأكيد السداد</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let appData = { transactions: [], debts: [] };
+
+        // UX: Haptic Feedback helper
+        const haptic = (ms = 40) => { if (navigator.vibrate) navigator.vibrate(ms); };
+
+        const setTodayDefault = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('txDate').value = today;
+            document.getElementById('debtDate').value = today;
+            document.getElementById('repayDate').value = today;
+        };
+
+        const formatMoney = (num) => {
+            if (isNaN(num) || num === null) return "0.00";
+            return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        // UX: Smart Date Formatting (Today, Yesterday)
+        const formatSmartDate = (dateStr) => {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) return 'اليوم';
+            if (date.toDateString() === yesterday.toDateString()) return 'أمس';
+            
+            return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast'), i = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            i.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400 text-lg' : 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
+            t.classList.remove('-translate-y-24', 'opacity-0');
+            if (type === 'error') haptic([50, 50, 50]); // Error haptic pattern
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
+        }
+
+        function init() {
+            const savedData = localStorage.getItem('smartWalletV4');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    if (parsed && parsed.transactions && parsed.debts) {
+                        appData = parsed;
+                        appData.debts.forEach(d => {
+                            if (d.remaining === undefined) d.remaining = d.isPaid ? 0 : d.amount;
+                            if (!d.history) d.history = [];
+                        });
+                    }
+                } catch (e) { console.error("Error parsing data, starting fresh."); }
+            }
+            setTodayDefault();
+            updateUI();
+        }
+
+        function updateUI() {
+            appData.transactions.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+            appData.debts.sort((a, b) => {
+                if (a.remaining > 0 && b.remaining <= 0) return -1;
+                if (a.remaining <= 0 && b.remaining > 0) return 1;
+                return new Date(b.dateStr) - new Date(a.dateStr);
+            });
+
+            updatePeopleDatalist();
+            renderTransactions();
+            renderDebts();
+            calculateDashboard();
+            localStorage.setItem('smartWalletV4', JSON.stringify(appData));
+        }
+
+        function updatePeopleDatalist() {
+            const list = document.getElementById('peopleNamesList');
+            const uniquePeople = [...new Set(appData.debts.map(d => d.person))];
+            list.innerHTML = uniquePeople.map(p => `<option value="${p}">`).join('');
+        }
+
+        function calculateDashboard() {
+            let income = 0, expense = 0;
+            appData.transactions.forEach(tx => {
+                if (tx.type === 'income') income += tx.amount;
+                if (tx.type === 'expense') expense += tx.amount;
+            });
+            document.getElementById('totalBalance').innerHTML = `${formatMoney(income - expense)} <span class="text-xl opacity-60 font-sans font-normal text-white/60">ج.م</span>`;
+            document.getElementById('totalIncome').innerText = formatMoney(income);
+            document.getElementById('totalExpense').innerText = formatMoney(expense);
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transactionsList');
+            if (appData.transactions.length === 0) {
+                list.innerHTML = `
+                <div class="text-center py-12 px-4 glass-panel rounded-[2rem] border-dashed border-2 border-white/10">
+                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-4 shadow-inner"><i class="fa-solid fa-receipt text-2xl text-gray-500"></i></div>
+                    <p class="text-gray-300 font-bold">لا توجد معاملات بعد</p>
+                    <p class="text-xs text-gray-500 mt-2">اضغط على الزر (+) للبدء بإضافة معاملاتك</p>
+                </div>`;
+                document.getElementById('listCount').innerText = '0';
+                return;
+            }
+            document.getElementById('listCount').innerText = appData.transactions.length;
+            list.innerHTML = appData.transactions.map((tx, i) => {
+                const isInc = tx.type === 'income';
+                const col = isInc ? 'emerald' : 'rose';
+                const sign = isInc ? '+' : '-';
+                return `
+                <div class="bg-slate-800/50 p-4 rounded-2xl flex justify-between items-center relative overflow-hidden animate-slide-up border border-white/5 hover:bg-slate-800 transition-colors" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <div class="flex items-center gap-4 w-[65%]">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-${col}-500/10 border border-${col}-500/20 flex items-center justify-center text-${col}-400 shadow-inner">
+                            <i class="fa-solid ${isInc ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="font-bold text-sm truncate text-white/95">${tx.category}</p>
+                            <p class="text-[11px] text-gray-400 mt-1 flex items-center gap-1"><i class="fa-regular fa-clock text-[9px]"></i> ${formatSmartDate(tx.dateStr)}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <p class="font-bold font-numbers text-${col}-400 text-[15px]" dir="ltr">${sign}${formatMoney(tx.amount)}</p>
+                        <button type="button" onclick="haptic(); deleteTx(${tx.id})" class="text-[10px] text-rose-400/80 bg-rose-500/10 px-2.5 py-1 rounded-md transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-300"><i class="fa-solid fa-trash"></i> حذف</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderDebts() {
+            const list = document.getElementById('debtsList');
+            if (appData.debts.length === 0) {
+                list.innerHTML = `
+                <div class="text-center py-12 px-4 glass-panel rounded-[2rem] border-dashed border-2 border-white/10">
+                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-4 shadow-inner"><i class="fa-solid fa-handshake-angle text-2xl text-gray-500"></i></div>
+                    <p class="text-gray-300 font-bold">لا توجد ديون مسجلة</p>
+                    <p class="text-xs text-gray-500 mt-2">سجل التزاماتك المالية أو ما لك عند الآخرين هنا</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = appData.debts.map((debt, i) => {
+                const isLent = debt.type === 'lent';
+                const col = isLent ? 'blue' : 'orange';
+                const lbl = isLent ? 'أقرضته' : 'استلفت منه';
+                const isDone = debt.remaining <= 0;
+                const progress = ((debt.amount - debt.remaining) / debt.amount) * 100;
+
+                let historyHTML = '';
+                if (debt.history && debt.history.length > 0) {
+                    historyHTML = `<div class="mt-4 pt-3 border-t border-white/5 space-y-2 max-h-32 overflow-y-auto hide-scrollbar">` + 
+                        debt.history.map(h => `
+                        <div class="flex justify-between items-center text-[11px] bg-slate-900/50 px-3 py-2 rounded-lg border border-white/5">
+                            <span class="text-gray-400 flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-emerald-500/50"></i>${formatSmartDate(h.date)}</span>
+                            <span class="font-numbers text-emerald-400 font-bold">+${formatMoney(h.amountPaid)}</span>
+                        </div>`).join('') + `</div>`;
+                }
+
+                if (isDone) {
+                    return `
+                <div class="bg-slate-800/40 p-5 rounded-[2rem] animate-slide-up relative border border-emerald-500/20 opacity-70 transition-all hover:opacity-100" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <button type="button" onclick="haptic(); deleteDebt(${debt.id})" class="absolute top-5 left-5 w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 transition z-10 hover:bg-rose-500 hover:text-white active:scale-90 flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                    <div class="absolute -left-2 -top-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-br-xl rounded-tl-xl shadow-lg transform -rotate-12 z-10"><i class="fa-solid fa-check-double ml-1"></i>مكتمل</div>
+                    
+                    <div class="flex justify-between items-center mb-2 mt-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20"><i class="fa-solid fa-user-check text-lg"></i></div>
+                            <div><p class="text-[11px] text-gray-500 line-through">${lbl}</p><p class="font-bold text-sm text-white/80">${debt.person}</p></div>
+                        </div>
+                        <div class="text-left pr-8">
+                            <p class="font-bold font-numbers text-lg text-emerald-400 line-through">${formatMoney(debt.amount)}</p>
+                        </div>
+                    </div>
+                    ${historyHTML}
+                </div>`;
+                }
+
+                return `
+                <div class="bg-slate-800/80 p-5 rounded-[2rem] animate-slide-up relative border border-white/5 shadow-lg" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <button type="button" onclick="haptic(); deleteDebt(${debt.id})" class="absolute top-5 left-5 w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 transition z-10 hover:bg-rose-500 hover:text-white active:scale-90 flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                    
+                    <div class="flex justify-between items-start mb-5">
+                        <div class="flex items-center gap-3 mt-1">
+                            <div class="w-14 h-14 rounded-full bg-${col}-500/10 border border-${col}-500/20 flex items-center justify-center text-${col}-400 shadow-inner"><i class="fa-solid fa-user-tag text-xl"></i></div>
+                            <div>
+                                <p class="text-[11px] text-${col}-300 mb-0.5">${lbl}</p>
+                                <p class="font-bold text-lg leading-tight mb-1 text-white/95">${debt.person}</p>
+                                <p class="text-[10px] text-gray-500 flex items-center gap-1"><i class="fa-regular fa-clock"></i> ${formatSmartDate(debt.dateStr)}</p>
+                            </div>
+                        </div>
+                        <div class="text-left bg-slate-900/60 px-4 py-2.5 rounded-2xl border border-white/5 mt-1">
+                            <p class="text-[10px] text-gray-400 mb-1">الأصلي: ${formatMoney(debt.amount)}</p>
+                            <p class="font-bold font-numbers text-xl text-${col}-400 leading-none">${formatMoney(debt.remaining)}</p>
+                            <p class="text-[9px] text-gray-500 mt-1 text-center">المتبقي</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="flex justify-between text-[11px] mb-2 px-1 text-gray-400">
+                            <span>نسبة السداد</span>
+                            <span class="font-numbers font-bold text-white/70">${progress.toFixed(0)}%</span>
+                        </div>
+                        <div class="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden shadow-inner border border-white/5"><div class="h-full bg-gradient-to-r from-${col}-600 to-${col}-400 rounded-full transition-all duration-1000 relative" style="width: ${progress}%"><div class="absolute inset-0 bg-white/20 w-full animate-pulse"></div></div></div>
+                    </div>
+                    
+                    <button type="button" onclick="haptic(); openRepayModal(${debt.id})" class="w-full bg-${col}-500/10 hover:bg-${col}-500/20 text-${col}-300 py-3.5 rounded-xl text-sm font-bold transition-all border border-${col}-500/20 flex justify-center items-center gap-2 active:scale-95"><i class="fa-solid fa-coins"></i> تسجيل دفعة سداد</button>
+                    
+                    ${historyHTML}
+                </div>`;
+            }).join('');
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const tx = {
+                id: Date.now(),
+                type: document.querySelector('input[name="txType"]:checked').value,
+                dateStr: document.getElementById('txDate').value,
+                amount: parseFloat(document.getElementById('txAmount').value),
+                category: document.getElementById('txCategory').value
+            };
+            appData.transactions.push(tx);
+            haptic();
+            document.getElementById('txForm').reset(); setTodayDefault(); closeModal('transactionModal'); updateUI(); showToast('تم الحفظ بنجاح');
+        }
+
+        function addDebt(e) {
+            e.preventDefault();
+            const type = document.querySelector('input[name="debtType"]:checked').value;
+            const amount = parseFloat(document.getElementById('debtAmount').value);
+            const person = document.getElementById('debtPerson').value;
+            const dateStr = document.getElementById('debtDate').value;
+            const affectWallet = document.getElementById('affectWalletToggle').checked;
+
+            const debt = { id: Date.now(), type, person, amount, remaining: amount, dateStr, history: [], isPaid: false };
+            appData.debts.push(debt);
+
+            if (affectWallet) {
+                appData.transactions.push({
+                    id: Date.now() + 1,
+                    type: type === 'lent' ? 'expense' : 'income',
+                    amount: amount,
+                    category: type === 'lent' ? `قرض لـ (${person})` : `سلف من (${person})`,
+                    dateStr: dateStr
+                });
+            }
+
+            haptic();
+            document.getElementById('debtForm').reset(); setTodayDefault(); closeModal('debtModal'); switchTab('debts'); updateUI(); showToast('تم تسجيل الدين بنجاح');
+        }
+
+        function openRepayModal(debtId) {
+            const debt = appData.debts.find(d => d.id === debtId);
+            document.getElementById('repayDebtId').value = debtId;
+            document.getElementById('repaymentPersonName').innerText = `المستفيد: ${debt.person}`;
+            document.getElementById('repayMaxAmount').innerText = formatMoney(debt.remaining);
+            document.getElementById('repayAmount').value = ''; // Let user type it
+            closeActionMenu(); openModal('repaymentModal');
+        }
+
+        function addRepayment(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('repayDebtId').value);
+            const amount = parseFloat(document.getElementById('repayAmount').value);
+            const date = document.getElementById('repayDate').value;
+            const affectWallet = document.getElementById('repayAffectWallet').checked;
+
+            const debt = appData.debts.find(d => d.id === id);
+
+            if (amount > debt.remaining) {
+                showToast('عفواً! المبلغ المدخل أكبر من المتبقي', 'error');
+                return;
+            }
+
+            debt.remaining = Math.round((debt.remaining - amount) * 100) / 100;
+            debt.history.push({ date, amountPaid: amount });
+
+            if (affectWallet) {
+                appData.transactions.push({
+                    id: Date.now(),
+                    type: debt.type === 'lent' ? 'income' : 'expense',
+                    amount: amount,
+                    category: `سداد دين من/إلى (${debt.person})`,
+                    dateStr: date
+                });
+            }
+
+            haptic();
+            document.getElementById('repayForm').reset();
+            setTodayDefault();
+            closeModal('repaymentModal');
+            updateUI();
+
+            if (debt.remaining <= 0) showToast('🎉 تم سداد الدين بالكامل');
+            else showToast('تم تسجيل الدفعة بنجاح');
+        }
+
+        function deleteTx(id) {
+            if (confirm('هل أنت متأكد من حذف هذه المعاملة؟')) {
+                appData.transactions = appData.transactions.filter(t => t.id !== id);
+                updateUI();
+                showToast('تم الحذف بنجاح');
+            }
+        }
+
+        function deleteDebt(id) {
+            if (confirm('هل تريد حذف هذا الدين وسجل دفعاته نهائياً؟\n(ملاحظة: لن تتأثر المحفظة الأساسية بهذا الحذف)')) {
+                appData.debts = appData.debts.filter(d => d.id !== id);
+                updateUI();
+                showToast('تم الحذف بنجاح');
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('transactionsList').classList.add('hidden'); 
+            document.getElementById('debtsList').classList.add('hidden');
+            
+            // Reset nav styles
+            document.getElementById('nav-tx').classList.replace('text-indigo-400', 'text-gray-500'); 
+            document.getElementById('nav-debts').classList.replace('text-indigo-400', 'text-gray-500');
+            document.getElementById('nav-tx-indicator').classList.add('opacity-0');
+            document.getElementById('nav-debts-indicator').classList.add('opacity-0');
+
+            // Set Active styles
+            document.getElementById(`${tab}List`).classList.remove('hidden');
+            document.getElementById(`nav-${tab === 'transactions' ? 'tx' : 'debts'}`).classList.replace('text-gray-500', 'text-indigo-400');
+            document.getElementById(`nav-${tab === 'transactions' ? 'tx' : 'debts'}-indicator`).classList.remove('opacity-0');
+            
+            document.getElementById('listTitle').innerText = tab === 'transactions' ? 'آخر المعاملات' : 'سجل الديون';
+            document.getElementById('listCount').innerText = tab === 'transactions' ? appData.transactions.length : appData.debts.length;
+        }
+
+        function toggleActionMenu(e) {
+            e.stopPropagation();
+            const m = document.getElementById('actionMenu'), i = document.getElementById('plusIcon');
+            if (m.classList.contains('hidden')) {
+                m.classList.remove('hidden');
+                setTimeout(() => { m.classList.remove('scale-95', 'opacity-0'); m.classList.add('flex'); i.style.transform = 'rotate(45deg)'; }, 10);
+            } else closeActionMenu();
+        }
+
+        function closeActionMenu() {
+            const m = document.getElementById('actionMenu'), i = document.getElementById('plusIcon');
+            if (!m.classList.contains('hidden')) {
+                m.classList.add('scale-95', 'opacity-0');
+                i.style.transform = 'rotate(0deg)';
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 200);
+            }
+        }
+
+        document.addEventListener('click', (e) => { if (!document.getElementById('fabContainer').contains(e.target)) closeActionMenu(); });
+
+        function openModal(id) {
+            closeActionMenu();
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('modal-active');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 400);
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([dataStr], { type: "application/json" }));
+            a.download = `SmartWallet_Backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); showToast('تم تصدير النسخة الاحتياطية');
+        }
+
+        function importData(e) {
+            const file = e.target.files[0]; if (!file) return;
+            
+            // تحذير الأمان قبل المسح
+            if (appData.transactions.length > 0 || appData.debts.length > 0) {
+                if (!confirm("⚠️ تحذير: استيراد بيانات جديدة سيمسح بياناتك الحالية. هل أنت متأكد من الاستمرار؟")) {
+                    e.target.value = '';
+                    return;
+                }
+            }
+
+            const r = new FileReader();
+            r.onload = function (ev) {
+                try {
+                    const d = JSON.parse(ev.target.result);
+                    if (d.transactions && d.debts) {
+                        appData = d;
+                        appData.debts.forEach(debt => {
+                            if (debt.remaining === undefined) debt.remaining = debt.isPaid ? 0 : debt.amount;
+                            if (!debt.history) debt.history = [];
+                        });
+                        updateUI();
+                        haptic();
+                        showToast('تم استعادة البيانات بنجاح');
+                    } else { throw new Error('Invalid format'); }
+                } catch (err) { showToast('عفواً، ملف النسخة الاحتياطية غير صالح!', 'error'); }
+            };
+            r.readAsText(file); e.target.value = '';
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
