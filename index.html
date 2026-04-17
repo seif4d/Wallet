@@ -4,9 +4,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#020617">
+    
+    <!-- SEO & Social Media Meta Tags -->
     <title>محفظتي الذكية | البنك الشخصي في جيبك</title>
-    <meta name="description" content="تطبيق مالي احترافي لإدارة المصروفات، الدخل، وتتبع الديون بخصوصية تامة وبدون إنترنت.">
+    <meta name="description" content="تطبيق مالي احترافي ومجاني 100% لإدارة المصروفات، الدخل، وتتبع الديون بخصوصية تامة. يعمل بدون إنترنت وبدون تسجيل حساب.">
+    <meta name="keywords" content="مصروفات, ميزانية, ديون, محاسبة شخصية, تطبيق مالي, محفظة ذكية">
+    <meta property="og:title" content="محفظتي الذكية | البنك الشخصي في جيبك">
+    <meta property="og:description" content="إدارتك المالية بمستوى البنوك. مجاني بالكامل وآمن 100%.">
+    <meta property="og:type" content="website">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,7 +30,6 @@
                     colors: {
                         dark: '#020617',
                         primary: '#4f46e5',
-                        secondary: '#c026d3'
                     }
                 }
             }
@@ -31,16 +37,19 @@
     </script>
 
     <style>
-        body {
-            background-color: #020617;
-            color: white;
+        html, body {
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
+        body {
+            background-color: #020617;
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* تأثيرات الخلفية الشبكية والمشعة */
+        /* Background Effects */
         .bg-grid {
-            background-size: 40px 40px;
+            background-size: 30px 30px;
             background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                               linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             position: absolute;
@@ -48,37 +57,28 @@
             z-index: -2;
         }
 
-        .bg-glow, .bg-glow-2, .bg-glow-3 {
+        .glow-orb {
             position: absolute;
             border-radius: 50%;
             z-index: -1;
-            filter: blur(60px);
-            animation: pulse-glow 8s infinite alternate;
-        }
-        .bg-glow { width: 600px; height: 600px; background: radial-gradient(circle, rgba(79,70,229,0.15) 0%, rgba(2,6,23,0) 70%); top: -100px; left: -100px; }
-        .bg-glow-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(192,38,211,0.12) 0%, rgba(2,6,23,0) 70%); right: -200px; top: 20%; animation-direction: alternate-reverse; }
-        .bg-glow-3 { width: 800px; height: 800px; background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, rgba(2,6,23,0) 70%); bottom: -200px; left: 20%; }
-
-        @keyframes pulse-glow {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 1; }
+            filter: blur(80px);
+            opacity: 0.6;
         }
 
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* تحريك الهاتف الوهمي والعناصر العائمة */
+        /* Animations */
         .floating-mockup { animation: float 6s ease-in-out infinite; }
-        .floating-element-1 { animation: float-fast 4s ease-in-out infinite; }
-        .floating-element-2 { animation: float-slow 7s ease-in-out infinite; }
+        .float-fast { animation: float-element 4s ease-in-out infinite; }
+        .float-slow { animation: float-element 7s ease-in-out infinite reverse; }
 
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(1deg); } 50% { transform: translateY(-20px) rotate(-1deg); } }
-        @keyframes float-fast { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        @keyframes float-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(20px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(1deg); } 50% { transform: translateY(-15px) rotate(-1deg); } }
+        @keyframes float-element { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         .gradient-text {
             background: linear-gradient(135deg, #818cf8, #e879f9);
@@ -86,35 +86,39 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* تأثير الظهور عند التمرير */
+        /* Scroll Reveal */
         .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* تخصيص الـ Accordion للأسئلة الشائعة */
+        /* FAQ Accordion */
         .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
         .faq-answer > div { overflow: hidden; }
         .faq-item.active .faq-answer { grid-template-rows: 1fr; }
         .faq-item.active .faq-icon { transform: rotate(180deg); color: #818cf8; }
+
+        /* Mobile Menu */
+        #mobileMenu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-open { transform: translateX(0) !important; }
     </style>
 </head>
 
 <body class="antialiased selection:bg-indigo-500/30 relative">
 
     <div class="bg-grid"></div>
-    <div class="bg-glow"></div>
-    <div class="bg-glow-2"></div>
-    <div class="bg-glow-3"></div>
+    <div class="glow-orb bg-indigo-600/20 w-[300px] md:w-[600px] h-[300px] md:h-[600px] top-[-100px] left-[-50px]"></div>
+    <div class="glow-orb bg-fuchsia-600/15 w-[250px] md:w-[500px] h-[250px] md:h-[500px] right-[-100px] top-[20%]"></div>
 
-    <!-- شريط التنقل (Navbar) -->
+    <!-- شريط التنقل -->
     <nav class="fixed w-full z-50 glass-panel border-b border-white/5 transition-all duration-300 shadow-lg">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-[0_0_15px_rgba(79,70,229,0.5)]">
-                    <i class="fa-solid fa-wallet text-white"></i>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 sm:gap-3 z-50">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-wallet text-white text-sm sm:text-base"></i>
                 </div>
-                <span class="text-xl font-black tracking-tight">محفظتي <span class="font-normal text-indigo-400">الذكية</span></span>
+                <span class="text-lg sm:text-xl font-black tracking-tight">محفظتي <span class="font-normal text-indigo-400">الذكية</span></span>
             </div>
             
+            <!-- روابط الشاشات الكبيرة -->
             <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-300">
                 <a href="#features" class="hover:text-white transition">المميزات</a>
                 <a href="#how-it-works" class="hover:text-white transition">كيف يعمل</a>
@@ -122,375 +126,282 @@
                 <a href="#faq" class="hover:text-white transition">الأسئلة الشائعة</a>
             </div>
 
-            <a href="app" class="bg-white hover:bg-gray-100 text-indigo-950 px-6 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] flex items-center gap-2 hover:scale-105 active:scale-95">
-                <span>فتح المحفظة</span>
-                <i class="fa-solid fa-arrow-left-long text-xs"></i>
-            </a>
+            <div class="hidden md:flex">
+                <a href="app" class="bg-white hover:bg-gray-100 text-indigo-950 px-6 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] flex items-center gap-2 hover:scale-105 active:scale-95">
+                    <span>فتح المحفظة</span><i class="fa-solid fa-arrow-left-long text-xs"></i>
+                </a>
+            </div>
+
+            <!-- زر قائمة الموبايل -->
+            <button id="menuBtn" class="md:hidden text-white text-2xl z-50 p-2 focus:outline-none">
+                <i class="fa-solid fa-bars" id="menuIcon"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- القسم الرئيسي (Hero Section) -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-6 min-h-screen flex items-center">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative z-10 w-full">
+    <!-- قائمة الموبايل (Mobile Menu) -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-900/98 backdrop-blur-3xl z-40 flex flex-col items-center justify-center gap-8 text-xl font-bold translate-x-full md:hidden">
+        <a href="#features" class="mobile-link text-gray-300 hover:text-white transition">المميزات</a>
+        <a href="#how-it-works" class="mobile-link text-gray-300 hover:text-white transition">كيف يعمل</a>
+        <a href="#security" class="mobile-link text-gray-300 hover:text-white transition">الأمان</a>
+        <a href="#faq" class="mobile-link text-gray-300 hover:text-white transition">الأسئلة الشائعة</a>
+        <a href="app" class="mt-4 bg-indigo-600 text-white px-10 py-3 rounded-full font-black text-lg flex items-center gap-3 shadow-lg shadow-indigo-500/30">
+            دخول التطبيق <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+
+    <!-- القسم الرئيسي -->
+    <section class="relative pt-32 pb-16 lg:pt-48 lg:pb-32 px-4 sm:px-6 min-h-[90vh] flex items-center overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-16 relative z-10 w-full">
             
             <!-- النصوص -->
-            <div class="w-full lg:w-1/2 text-center lg:text-right reveal active">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/80 border border-white/10 text-gray-300 text-xs font-bold mb-6 shadow-inner">
-                    <span class="relative flex h-2.5 w-2.5">
+            <div class="w-full lg:w-1/2 text-center lg:text-right reveal active mt-8 lg:mt-0">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-white/10 text-gray-300 text-[11px] sm:text-xs font-bold mb-6">
+                    <span class="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      <span class="relative inline-flex rounded-full bg-emerald-500 h-full w-full"></span>
                     </span>
-                    النظام المحاسبي الأسرع لعام 2024
+                    مجاني 100% ويعمل بدون إنترنت
                 </div>
-                <h1 class="text-5xl lg:text-7xl font-black leading-tight mb-6 tracking-tight">
+                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.2] mb-6 tracking-tight">
                     إدارتك المالية، <br>
                     <span class="gradient-text">بمستوى البنوك.</span>
                 </h1>
-                <p class="text-gray-400 text-lg lg:text-xl mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
-                    تطبيق ويب متكامل يمنحك السيطرة الكاملة على أموالك. راقب نفقاتك، أدر ديونك، وتتبع دخلك بواجهة عصرية وبدون الحاجة لإنشاء حساب أو الاتصال بالإنترنت.
+                <p class="text-gray-400 text-base sm:text-lg lg:text-xl mb-8 lg:mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                    راقب نفقاتك، أدر ديونك، وتتبع دخلك بواجهة عصرية وبدون الحاجة لإنشاء حساب. بياناتك مشفرة ومحفوظة في جهازك فقط!
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="app" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all active:scale-95 flex items-center justify-center gap-3">
+                <div class="flex justify-center lg:justify-start">
+                    <a href="app" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all active:scale-95 flex items-center justify-center gap-3">
                         ابدأ مجاناً الآن
-                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <i class="fa-solid fa-bolt text-yellow-300"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- هاتف العرض (Mockup) -->
-            <div class="w-full lg:w-1/2 flex justify-center lg:justify-end relative h-[600px] reveal active" style="transition-delay: 0.2s;">
-                
-                <!-- عنصر عائم (إشعار دفع) -->
-                <div class="absolute top-20 right-0 lg:-right-10 z-30 glass-panel p-4 rounded-2xl flex items-center gap-4 floating-element-1 shadow-2xl border-emerald-500/30">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
-                    <div>
-                        <p class="text-xs text-gray-400">تم السداد بنجاح</p>
-                        <p class="font-bold font-numbers text-emerald-400">+1,500.00 ج.م</p>
-                    </div>
-                </div>
-
-                <!-- عنصر عائم (تنبيه مصروف) -->
-                <div class="absolute bottom-32 left-0 lg:-left-10 z-30 glass-panel p-4 rounded-2xl flex items-center gap-4 floating-element-2 shadow-2xl border-rose-500/30">
-                    <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center"><i class="fa-solid fa-bolt"></i></div>
-                    <div>
-                        <p class="text-xs text-gray-400">مصروف جديد</p>
-                        <p class="font-bold text-sm">تسوق سوبر ماركت</p>
-                    </div>
+            <!-- هاتف العرض -->
+            <div class="w-full lg:w-1/2 flex justify-center lg:justify-end relative h-[500px] sm:h-[600px] reveal active">
+                <!-- الإشعارات مخفية على الهواتف الصغيرة -->
+                <div class="hidden md:flex absolute top-16 right-[-20px] z-30 glass-panel p-3 rounded-2xl items-center gap-3 float-fast shadow-2xl border-emerald-500/30">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-check"></i></div>
+                    <div><p class="text-[10px] text-gray-400">تم السداد</p><p class="font-bold font-numbers text-emerald-400 text-sm">+1,500.00</p></div>
                 </div>
 
                 <!-- إطار الهاتف -->
-                <div class="relative w-[300px] h-[600px] bg-slate-950 rounded-[3rem] border-[8px] border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.6)] shadow-indigo-500/20 floating-mockup overflow-hidden ring-1 ring-white/10 z-20">
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-3xl z-20 border-b border-x border-white/5"></div>
+                <div class="relative w-[260px] sm:w-[300px] h-[520px] sm:h-[600px] bg-slate-950 rounded-[2.5rem] sm:rounded-[3rem] border-[6px] sm:border-[8px] border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] floating-mockup overflow-hidden ring-1 ring-white/10 z-20">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 sm:w-32 h-5 sm:h-6 bg-slate-900 rounded-b-2xl sm:rounded-b-3xl z-20 border-b border-x border-white/5"></div>
                     
-                    <!-- واجهة التطبيق الوهمية -->
-                    <div class="absolute inset-0 bg-[#020617] pt-14 px-5 pb-20 bg-[radial-gradient(circle_at_50%_0%,#1e1b4b_0%,#020617_70%)]">
-                        <div class="flex justify-between items-center mb-6">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-fuchsia-500"></div>
-                                <div class="w-16 h-3 bg-white/80 rounded-full"></div>
-                            </div>
-                            <div class="w-8 h-8 rounded-full bg-white/10"></div>
+                    <div class="absolute inset-0 bg-[#020617] pt-12 sm:pt-14 px-4 sm:px-5 pb-20 bg-[radial-gradient(circle_at_50%_0%,#1e1b4b_0%,#020617_70%)]">
+                        <div class="flex justify-between items-center mb-5 sm:mb-6">
+                            <div class="flex items-center gap-2"><div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-fuchsia-500"></div><div class="w-14 sm:w-16 h-2.5 sm:h-3 bg-white/80 rounded-full"></div></div>
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10"></div>
                         </div>
                         
-                        <div class="w-full h-40 bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-[2rem] mb-6 p-5 relative overflow-hidden shadow-lg shadow-indigo-500/30">
-                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                            <div class="w-20 h-3 bg-white/50 rounded-full mb-3"></div>
-                            <div class="w-32 h-8 bg-white rounded-full mb-8"></div>
+                        <div class="w-full h-32 sm:h-40 bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-[1.5rem] sm:rounded-[2rem] mb-5 sm:mb-6 p-4 sm:p-5 relative overflow-hidden">
+                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <div class="w-16 h-2.5 sm:h-3 bg-white/50 rounded-full mb-3"></div>
+                            <div class="w-24 h-6 sm:h-8 bg-white rounded-full mb-6 sm:mb-8"></div>
                             <div class="flex justify-between border-t border-white/20 pt-3">
-                                <div class="w-16 h-4 bg-emerald-300 rounded-full"></div>
-                                <div class="w-16 h-4 bg-rose-300 rounded-full"></div>
+                                <div class="w-12 h-3 sm:h-4 bg-emerald-300 rounded-full"></div>
+                                <div class="w-12 h-3 sm:h-4 bg-rose-300 rounded-full"></div>
                             </div>
                         </div>
 
-                        <div class="flex justify-between mb-4">
-                            <div class="w-24 h-4 bg-white/80 rounded-full"></div>
-                            <div class="w-8 h-4 bg-indigo-400 rounded-full"></div>
-                        </div>
+                        <div class="flex justify-between mb-4"><div class="w-20 sm:w-24 h-3 sm:h-4 bg-white/80 rounded-full"></div><div class="w-6 h-3 sm:h-4 bg-indigo-400 rounded-full"></div></div>
                         
-                        <div class="space-y-3">
-                            <div class="w-full p-3 bg-slate-800/50 rounded-2xl flex items-center gap-3 border border-white/5">
-                                <div class="w-10 h-10 bg-emerald-500/10 rounded-xl"></div>
-                                <div class="flex-1 space-y-2"><div class="w-20 h-2.5 bg-white/70 rounded-full"></div><div class="w-12 h-2 bg-gray-500 rounded-full"></div></div>
-                                <div class="w-14 h-3 bg-emerald-400 rounded-full"></div>
+                        <div class="space-y-2.5 sm:space-y-3">
+                            <div class="w-full p-2.5 sm:p-3 bg-slate-800/50 rounded-xl sm:rounded-2xl flex items-center gap-3 border border-white/5">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500/10 rounded-lg sm:rounded-xl"></div>
+                                <div class="flex-1 space-y-1.5 sm:space-y-2"><div class="w-16 sm:w-20 h-2 bg-white/70 rounded-full"></div><div class="w-10 sm:w-12 h-1.5 sm:h-2 bg-gray-500 rounded-full"></div></div>
                             </div>
-                            <div class="w-full p-3 bg-slate-800/50 rounded-2xl flex items-center gap-3 border border-white/5">
-                                <div class="w-10 h-10 bg-rose-500/10 rounded-xl"></div>
-                                <div class="flex-1 space-y-2"><div class="w-24 h-2.5 bg-white/70 rounded-full"></div><div class="w-16 h-2 bg-gray-500 rounded-full"></div></div>
-                                <div class="w-12 h-3 bg-rose-400 rounded-full"></div>
+                            <div class="w-full p-2.5 sm:p-3 bg-slate-800/50 rounded-xl sm:rounded-2xl flex items-center gap-3 border border-white/5">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-rose-500/10 rounded-lg sm:rounded-xl"></div>
+                                <div class="flex-1 space-y-1.5 sm:space-y-2"><div class="w-20 sm:w-24 h-2 bg-white/70 rounded-full"></div><div class="w-14 sm:w-16 h-1.5 sm:h-2 bg-gray-500 rounded-full"></div></div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="absolute bottom-0 w-full h-20 bg-slate-900/95 backdrop-blur border-t border-white/5 flex justify-around items-center px-6 rounded-t-3xl z-30">
-                        <div class="w-6 h-6 bg-indigo-400 rounded-md"></div>
-                        <div class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-full border-4 border-[#020617] -mt-10 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
-                        <div class="w-6 h-6 bg-slate-600 rounded-md"></div>
+                    <div class="absolute bottom-0 w-full h-16 sm:h-20 bg-slate-900/95 backdrop-blur border-t border-white/5 flex justify-around items-center px-4 sm:px-6 rounded-t-2xl sm:rounded-t-3xl z-30">
+                        <div class="w-5 h-5 sm:w-6 sm:h-6 bg-indigo-400 rounded-md"></div>
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-full border-4 border-[#020617] -mt-8 sm:-mt-10 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                        <div class="w-5 h-5 sm:w-6 sm:h-6 bg-slate-600 rounded-md"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- شريط الإحصائيات (Social Proof) -->
-    <section class="border-y border-white/5 bg-slate-900/30 backdrop-blur-sm py-8 relative z-10">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-x-reverse divide-white/5">
-            <div class="reveal">
-                <p class="text-3xl font-black font-numbers text-white mb-1">100%</p>
-                <p class="text-xs text-gray-500 font-bold tracking-wider">مجاني بالكامل</p>
-            </div>
-            <div class="reveal" style="transition-delay: 0.1s;">
-                <p class="text-3xl font-black font-numbers text-white mb-1">0</p>
-                <p class="text-xs text-gray-500 font-bold tracking-wider">تتبع لبياناتك</p>
-            </div>
-            <div class="reveal" style="transition-delay: 0.2s;">
-                <p class="text-3xl font-black font-numbers text-white mb-1"><i class="fa-solid fa-infinity text-indigo-400 text-2xl"></i></p>
-                <p class="text-xs text-gray-500 font-bold tracking-wider">معاملات غير محدودة</p>
-            </div>
-            <div class="reveal" style="transition-delay: 0.3s;">
-                <p class="text-3xl font-black font-numbers text-white mb-1"><i class="fa-solid fa-wifi text-emerald-400 text-2xl"></i></p>
-                <p class="text-xs text-gray-500 font-bold tracking-wider">يعمل بدون إنترنت</p>
-            </div>
+    <!-- الإحصائيات -->
+    <section class="border-y border-white/5 bg-slate-900/30 backdrop-blur-sm py-8 lg:py-10 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center divide-x divide-x-reverse divide-white/5">
+            <div class="reveal"><p class="text-2xl sm:text-3xl font-black font-numbers text-white mb-1">100%</p><p class="text-[10px] sm:text-xs text-gray-500 font-bold">مجاني للأبد</p></div>
+            <div class="reveal" style="transition-delay: 0.1s;"><p class="text-2xl sm:text-3xl font-black font-numbers text-white mb-1">0</p><p class="text-[10px] sm:text-xs text-gray-500 font-bold">تتبع لبياناتك</p></div>
+            <div class="reveal" style="transition-delay: 0.2s;"><p class="text-2xl sm:text-3xl font-black font-numbers text-white mb-1"><i class="fa-solid fa-infinity text-indigo-400"></i></p><p class="text-[10px] sm:text-xs text-gray-500 font-bold">معاملات غير محدودة</p></div>
+            <div class="reveal" style="transition-delay: 0.3s;"><p class="text-2xl sm:text-3xl font-black font-numbers text-white mb-1"><i class="fa-solid fa-wifi text-emerald-400"></i></p><p class="text-[10px] sm:text-xs text-gray-500 font-bold">يعمل أوفلاين</p></div>
         </div>
     </section>
 
-    <!-- قسم تفاصيل المميزات -->
-    <section id="features" class="py-24 px-6 relative z-10">
+    <!-- المميزات -->
+    <section id="features" class="py-16 lg:py-24 px-4 sm:px-6 relative z-10 overflow-hidden">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20 reveal">
-                <h2 class="text-sm font-bold text-indigo-400 tracking-widest mb-2">إمكانيات غير محدودة</h2>
-                <h3 class="text-3xl lg:text-4xl font-black">أكثر من مجرد تطبيق مصاريف</h3>
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-xs sm:text-sm font-bold text-indigo-400 tracking-widest mb-2">إمكانيات مذهلة</h2>
+                <h3 class="text-3xl sm:text-4xl font-black">أكثر من مجرد تطبيق مصاريف</h3>
             </div>
 
-            <!-- الميزة 1 (تتبع الديون) -->
-            <div class="flex flex-col lg:flex-row items-center gap-16 mb-24 reveal">
+            <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16 mb-20 reveal">
                 <div class="w-full lg:w-1/2">
-                    <div class="w-14 h-14 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-2xl mb-6 border border-orange-500/20">
-                        <i class="fa-solid fa-handshake"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-4">نظام متطور لإدارة الديون</h4>
-                    <p class="text-gray-400 leading-relaxed mb-6">
-                        انسَ استخدام الدفاتر والورق. سجل من استلف منك أو لمن تدين بالمال. يوفر التطبيق نظاماً ذكياً لتسجيل دفعات السداد الجزئية، ويقوم بحساب المتبقي وتحديث رصيد محفظتك تلقائياً لتكون الصورة دائمًا واضحة.
-                    </p>
-                    <ul class="space-y-3 text-sm font-semibold text-gray-300">
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> تتبع نسبة السداد بشكل مرئي</li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> سجل تاريخي لكل دفعة مسددة</li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> ربط الدين بالرصيد الإجمالي</li>
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl sm:text-2xl mb-5 border border-orange-500/20"><i class="fa-solid fa-handshake"></i></div>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">نظام متطور لإدارة الديون</h4>
+                    <p class="text-sm sm:text-base text-gray-400 leading-relaxed mb-5">تخلص من الإحراج والنسيان. سجل من استلف منك أو لمن تدين. يوفر التطبيق نظاماً لتسجيل دفعات السداد الجزئية، ويقوم بتحديث رصيد محفظتك تلقائياً.</p>
+                    <ul class="space-y-2 sm:space-y-3 text-xs sm:text-sm font-semibold text-gray-300">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> تتبع نسبة السداد بصرياً</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> سجل تاريخي مفصل لكل دفعة</li>
                     </ul>
                 </div>
-                <div class="w-full lg:w-1/2 glass-panel p-6 rounded-[2rem] border-white/5 relative">
-                    <div class="bg-slate-900 rounded-xl p-5 border border-white/5">
+                <div class="w-full lg:w-1/2 glass-panel p-4 sm:p-6 rounded-[2rem] border-white/5 relative w-full max-w-md mx-auto">
+                    <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-white/5">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-user-tag text-lg"></i></div>
-                                <div><p class="text-xs text-blue-300">أقرضته</p><p class="font-bold text-lg">أحمد محمد</p></div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-user-tag text-base sm:text-lg"></i></div>
+                                <div><p class="text-[10px] sm:text-xs text-blue-300">أقرضته</p><p class="font-bold text-sm sm:text-lg">أحمد محمد</p></div>
                             </div>
-                            <div class="text-left bg-slate-800 px-3 py-2 rounded-xl">
-                                <p class="text-[10px] text-gray-400">الأصلي: 5,000</p>
-                                <p class="font-bold font-numbers text-xl text-blue-400">2,500</p>
+                            <div class="text-left bg-slate-800 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl">
+                                <p class="text-[9px] sm:text-[10px] text-gray-400">الأصلي: 5000</p>
+                                <p class="font-bold font-numbers text-lg sm:text-xl text-blue-400">2500</p>
                             </div>
                         </div>
                         <div class="mb-4">
-                            <div class="flex justify-between text-xs text-gray-400 mb-2"><span>نسبة السداد</span><span>50%</span></div>
-                            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-1/2"></div></div>
+                            <div class="flex justify-between text-[10px] sm:text-xs text-gray-400 mb-1.5"><span>السداد</span><span>50%</span></div>
+                            <div class="h-1.5 sm:h-2 w-full bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-1/2"></div></div>
                         </div>
-                        <button class="w-full bg-blue-500/10 text-blue-400 py-3 rounded-xl text-sm font-bold border border-blue-500/20">تسجيل دفعة سداد</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الميزة 2 (السرعة والواجهة) -->
-            <div class="flex flex-col lg:flex-row-reverse items-center gap-16 reveal">
-                <div class="w-full lg:w-1/2">
-                    <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-2xl mb-6 border border-indigo-500/20">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-                    <h4 class="text-2xl font-bold mb-4">تجربة مستخدم استثنائية (UX)</h4>
-                    <p class="text-gray-400 leading-relaxed mb-6">
-                        تم تصميم الواجهة بعناية فائقة لتكون واضحة، سريعة، وتعمل بسلاسة على الهاتف كأنها تطبيق أصلي (Native). الوضع المظلم (Dark Mode) يريح العين، والأزرار مصممة لتكون في متناول إصبعك.
-                    </p>
-                    <a href="app" class="text-indigo-400 font-bold hover:text-indigo-300 flex items-center gap-2 transition-colors">
-                        جرب الواجهة الآن <i class="fa-solid fa-arrow-left text-sm"></i>
-                    </a>
-                </div>
-                <div class="w-full lg:w-1/2 grid grid-cols-2 gap-4">
-                    <div class="glass-panel p-6 rounded-3xl text-center shadow-lg transform translate-y-4">
-                        <i class="fa-solid fa-moon text-3xl text-indigo-300 mb-4"></i>
-                        <h5 class="font-bold mb-2">Dark Mode</h5>
-                        <p class="text-xs text-gray-400">تصميم ليلي مريح وأنيق</p>
-                    </div>
-                    <div class="glass-panel p-6 rounded-3xl text-center shadow-lg">
-                        <i class="fa-solid fa-mobile-screen-button text-3xl text-fuchsia-300 mb-4"></i>
-                        <h5 class="font-bold mb-2">تطبيق PWA</h5>
-                        <p class="text-xs text-gray-400">ثبته كالتطبيقات العادية</p>
+                        <button class="w-full bg-blue-500/10 text-blue-400 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold border border-blue-500/20">تسجيل دفعة</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- قسم كيفية العمل (How it works) -->
-    <section id="how-it-works" class="py-24 px-6 bg-slate-900/50 border-y border-white/5 relative z-10">
+    <!-- كيف يعمل -->
+    <section id="how-it-works" class="py-16 lg:py-24 px-4 sm:px-6 bg-slate-900/50 border-y border-white/5 relative z-10">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <h2 class="text-3xl font-black mb-4">أبسط مما تتخيل</h2>
-                <p class="text-gray-400">3 خطوات فقط للسيطرة على ميزانيتك.</p>
+            <div class="text-center mb-12 sm:mb-16 reveal">
+                <h2 class="text-3xl font-black mb-3">أبسط مما تتخيل</h2>
+                <p class="text-gray-400 text-sm">3 خطوات فقط للبدء.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                <!-- خط التوصيل بين الخطوات -->
-                <div class="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-0"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 sm:gap-8 relative">
+                <div class="hidden md:block absolute top-8 sm:top-10 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-0"></div>
                 
-                <div class="text-center relative z-10 reveal" style="transition-delay: 0.1s;">
-                    <div class="w-20 h-20 mx-auto bg-slate-800 border-[6px] border-[#020617] rounded-full flex items-center justify-center text-2xl font-black text-indigo-400 shadow-[0_0_20px_rgba(79,70,229,0.2)] mb-6">1</div>
-                    <h4 class="text-xl font-bold mb-3">افتح الرابط</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-4">بدون تحميل، بدون إيميل، بدون كلمات مرور. فقط افتح الموقع وسيبدأ التطبيق بالعمل فوراً.</p>
-                </div>
-
-                <div class="text-center relative z-10 reveal" style="transition-delay: 0.2s;">
-                    <div class="w-20 h-20 mx-auto bg-slate-800 border-[6px] border-[#020617] rounded-full flex items-center justify-center text-2xl font-black text-fuchsia-400 shadow-[0_0_20px_rgba(192,38,211,0.2)] mb-6">2</div>
-                    <h4 class="text-xl font-bold mb-3">سجل عملياتك</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-4">أضف الدخل، المصروفات، أو الديون بضغطة زر. سيتم حساب المتبقي وعرضه بوضوح.</p>
-                </div>
-
-                <div class="text-center relative z-10 reveal" style="transition-delay: 0.3s;">
-                    <div class="w-20 h-20 mx-auto bg-slate-800 border-[6px] border-[#020617] rounded-full flex items-center justify-center text-2xl font-black text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)] mb-6">3</div>
-                    <h4 class="text-xl font-bold mb-3">احتفظ بنسختك</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-4">بياناتك تحفظ محلياً. استخدم زر "التصدير" لتحميل نسخة احتياطية على هاتفك كملف مشفر.</p>
-                </div>
+                <div class="text-center relative z-10 reveal"><div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-slate-800 border-[4px] sm:border-[6px] border-[#020617] rounded-full flex items-center justify-center text-xl sm:text-2xl font-black text-indigo-400 shadow-lg mb-4 sm:mb-6">1</div><h4 class="text-lg sm:text-xl font-bold mb-2">افتح الرابط</h4><p class="text-gray-400 text-xs sm:text-sm leading-relaxed px-2 sm:px-4">بدون تحميل أو إيميل. افتح الموقع وابدأ فوراً.</p></div>
+                <div class="text-center relative z-10 reveal" style="transition-delay: 0.1s;"><div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-slate-800 border-[4px] sm:border-[6px] border-[#020617] rounded-full flex items-center justify-center text-xl sm:text-2xl font-black text-fuchsia-400 shadow-lg mb-4 sm:mb-6">2</div><h4 class="text-lg sm:text-xl font-bold mb-2">سجل عملياتك</h4><p class="text-gray-400 text-xs sm:text-sm leading-relaxed px-2 sm:px-4">أضف مصروفاتك وديونك بسهولة تامة.</p></div>
+                <div class="text-center relative z-10 reveal" style="transition-delay: 0.2s;"><div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-slate-800 border-[4px] sm:border-[6px] border-[#020617] rounded-full flex items-center justify-center text-xl sm:text-2xl font-black text-emerald-400 shadow-lg mb-4 sm:mb-6">3</div><h4 class="text-lg sm:text-xl font-bold mb-2">احتفظ بنسختك</h4><p class="text-gray-400 text-xs sm:text-sm leading-relaxed px-2 sm:px-4">حمل بياناتك كملف مشفر للحفظ أو النقل.</p></div>
             </div>
         </div>
     </section>
 
-    <!-- قسم الأمان (Security) -->
-    <section id="security" class="py-24 px-6 relative z-10 overflow-hidden">
-        <div class="max-w-4xl mx-auto bg-slate-900 border border-white/10 rounded-[3rem] p-10 lg:p-16 relative shadow-2xl reveal">
-            <!-- خلفية درع مجردة -->
-            <i class="fa-solid fa-shield-halved absolute -left-10 -top-10 text-[250px] text-white/5 -rotate-12 z-0 pointer-events-none"></i>
-            
-            <div class="relative z-10 text-center lg:text-right flex flex-col lg:flex-row items-center gap-10">
-                <div class="w-24 h-24 shrink-0 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/30 text-emerald-400 text-4xl shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+    <!-- الأمان -->
+    <section id="security" class="py-16 lg:py-24 px-4 sm:px-6 relative z-10">
+        <div class="max-w-4xl mx-auto bg-slate-900 border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 lg:p-16 relative shadow-2xl reveal overflow-hidden">
+            <i class="fa-solid fa-shield-halved absolute -left-10 -top-10 text-[150px] sm:text-[250px] text-white/5 -rotate-12 z-0 pointer-events-none"></i>
+            <div class="relative z-10 text-center lg:text-right flex flex-col lg:flex-row items-center gap-6 sm:gap-10">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/30 text-emerald-400 text-3xl sm:text-4xl">
                     <i class="fa-solid fa-lock"></i>
                 </div>
                 <div>
-                    <h3 class="text-3xl font-black mb-4">أمان من فئة Zero-Knowledge</h3>
-                    <p class="text-gray-400 text-lg leading-relaxed mb-6">
-                        نحن لا نملك خوادم لتخزين بياناتك، ولا نرى معلوماتك المالية أبداً. يستخدم التطبيق تقنية <strong>LocalStorage</strong> لحفظ البيانات داخل متصفح هاتفك المحمول فقط. أنت المالك الوحيد لمفاتيح خزنتك.
+                    <h3 class="text-2xl sm:text-3xl font-black mb-3 sm:mb-4">أمان من فئة Zero-Knowledge</h3>
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed mb-5 sm:mb-6">
+                        نحن لا نملك خوادم لتخزين بياناتك. التطبيق يستخدم تقنية <strong>LocalStorage</strong> لحفظ البيانات داخل متصفح هاتفك المحمول فقط. أنت المالك الوحيد لمفاتيح خزنتك.
                     </p>
-                    <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-                        <span class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold text-gray-300 border border-white/5"><i class="fa-solid fa-server mr-1 text-rose-400"></i> لا يوجد خوادم مركزية</span>
-                        <span class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold text-gray-300 border border-white/5"><i class="fa-solid fa-eye-slash mr-1 text-indigo-400"></i> لا توجد إعلانات أو تتبع</span>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                        <span class="bg-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold text-gray-300 border border-white/5"><i class="fa-solid fa-server mr-1 text-rose-400"></i> لا توجد خوادم مركزية</span>
+                        <span class="bg-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold text-gray-300 border border-white/5"><i class="fa-solid fa-eye-slash mr-1 text-indigo-400"></i> لا تتبع لبياناتك</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- الأسئلة الشائعة (FAQ) -->
-    <section id="faq" class="py-24 px-6 relative z-10">
+    <!-- الأسئلة الشائعة -->
+    <section id="faq" class="py-16 lg:py-24 px-4 sm:px-6 relative z-10">
         <div class="max-w-3xl mx-auto reveal">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-black mb-4">الأسئلة الشائعة</h2>
-                <p class="text-gray-400">كل ما تريد معرفته عن التطبيق.</p>
+            <div class="text-center mb-10 sm:mb-16">
+                <h2 class="text-2xl sm:text-3xl font-black mb-3">الأسئلة الشائعة</h2>
+                <p class="text-gray-400 text-sm">كل ما تريد معرفته.</p>
             </div>
-
-            <div class="space-y-4">
-                <!-- سؤال 1 -->
-                <div class="faq-item glass-panel rounded-2xl border-white/5 overflow-hidden cursor-pointer">
-                    <div class="p-6 flex justify-between items-center font-bold text-lg text-white/90 select-none">
-                        <span>هل التطبيق مجاني حقاً؟ ولماذا؟</span>
-                        <i class="fa-solid fa-chevron-down faq-icon transition-transform text-gray-500"></i>
+            <div class="space-y-3 sm:space-y-4">
+                <div class="faq-item glass-panel rounded-xl sm:rounded-2xl border-white/5 cursor-pointer">
+                    <div class="p-4 sm:p-6 flex justify-between items-center font-bold text-sm sm:text-base text-white/90">
+                        <span>هل التطبيق مجاني حقاً؟ ولماذا؟</span><i class="fa-solid fa-chevron-down faq-icon transition-transform text-gray-500"></i>
                     </div>
-                    <div class="faq-answer px-6">
-                        <div class="text-gray-400 text-sm leading-relaxed pb-6">
-                            نعم، مجاني 100% وبدون إعلانات. تم بناء هذا التطبيق كأداة شخصية للتبسيط، وبما أنه لا يستخدم خوادم خارجية (مما يعني عدم وجود تكاليف تشغيل علينا)، قررنا إتاحته للجميع مجاناً لتسهيل الإدارة المالية.
-                        </div>
-                    </div>
+                    <div class="faq-answer px-4 sm:px-6"><div class="text-gray-400 text-xs sm:text-sm leading-relaxed pb-4 sm:pb-6">نعم، مجاني 100% وبدون إعلانات. التطبيق لا يستخدم خوادم خارجية (مما يعني عدم وجود تكاليف تشغيل علينا)، لذا قررنا إتاحته للجميع لتسهيل الإدارة المالية.</div></div>
                 </div>
-
-                <!-- سؤال 2 -->
-                <div class="faq-item glass-panel rounded-2xl border-white/5 overflow-hidden cursor-pointer">
-                    <div class="p-6 flex justify-between items-center font-bold text-lg text-white/90 select-none">
-                        <span>ماذا يحدث لبياناتي إذا قمت بمسح سجل المتصفح؟</span>
-                        <i class="fa-solid fa-chevron-down faq-icon transition-transform text-gray-500"></i>
+                <div class="faq-item glass-panel rounded-xl sm:rounded-2xl border-white/5 cursor-pointer">
+                    <div class="p-4 sm:p-6 flex justify-between items-center font-bold text-sm sm:text-base text-white/90">
+                        <span>ماذا يحدث لبياناتي إذا مسحت المتصفح؟</span><i class="fa-solid fa-chevron-down faq-icon transition-transform text-gray-500"></i>
                     </div>
-                    <div class="faq-answer px-6">
-                        <div class="text-gray-400 text-sm leading-relaxed pb-6">
-                            بما أن البيانات تحفظ في ذاكرة المتصفح (LocalStorage)، فإن مسح بيانات المتصفح بالكامل سيؤدي لمسح التطبيق. <strong>الحل:</strong> استخدم زر (التصدير) دائماً لتحميل نسخة من بياناتك كملف على هاتفك لاستعادتها في أي وقت.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- سؤال 3 -->
-                <div class="faq-item glass-panel rounded-2xl border-white/5 overflow-hidden cursor-pointer">
-                    <div class="p-6 flex justify-between items-center font-bold text-lg text-white/90 select-none">
-                        <span>كيف يمكنني تحميل التطبيق على شاشة هاتفي؟</span>
-                        <i class="fa-solid fa-chevron-down faq-icon transition-transform text-gray-500"></i>
-                    </div>
-                    <div class="faq-answer px-6">
-                        <div class="text-gray-400 text-sm leading-relaxed pb-6">
-                            التطبيق مدعوم بتقنية (PWA). إذا كنت تستخدم الايفون (Safari): اضغط على زر المشاركة ثم "إضافة للشاشة الرئيسية". في الاندرويد (Chrome): اضغط على الثلاث نقاط بالأعلى واختر "تثبيت التطبيق" أو "إضافة للشاشة". سيعمل بعدها كتطبيق عادي بدون متصفح.
-                        </div>
-                    </div>
+                    <div class="faq-answer px-4 sm:px-6"><div class="text-gray-400 text-xs sm:text-sm leading-relaxed pb-4 sm:pb-6">بما أن البيانات تحفظ في متصفحك، فإن مسحه سيمسح التطبيق. <strong>الحل:</strong> استخدم زر (تصدير) دورياً لتحميل نسخة من بياناتك كملف مشفر.</div></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- نداء اتخاذ الإجراء النهائي (Bottom CTA) -->
-    <section class="py-24 px-6 relative z-10 pb-32">
+    <!-- CTA -->
+    <section class="py-16 lg:py-24 px-4 sm:px-6 relative z-10 pb-24 sm:pb-32">
         <div class="max-w-4xl mx-auto text-center reveal">
-            <h2 class="text-4xl lg:text-5xl font-black mb-8">ابدأ رحلتك المالية الآن</h2>
-            <a href="app" class="inline-flex bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white px-12 py-5 rounded-full font-black text-xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(192,38,211,0.4)] relative overflow-hidden group">
-                <span class="relative z-10 flex items-center gap-3">دخول التطبيق <i class="fa-solid fa-wallet"></i></span>
-                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black mb-6 sm:mb-8">ابدأ رحلتك المالية الآن</h2>
+            <a href="app" class="inline-flex w-full sm:w-auto justify-center bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-full font-black text-lg sm:text-xl shadow-[0_0_30px_rgba(192,38,211,0.3)] active:scale-95 transition-transform">
+                دخول التطبيق <i class="fa-solid fa-wallet mr-3 mt-1"></i>
             </a>
         </div>
     </section>
 
     <!-- الفوتر -->
-    <footer class="border-t border-white/5 py-10 glass-panel relative z-10">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 gap-6">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-xs"><i class="fa-solid fa-wallet"></i></div>
-                <span class="font-bold text-lg">محفظتي الذكية</span>
-            </div>
-            <p class="text-gray-500 text-sm">© 2024 جميع الحقوق محفوظة. صُنع لتبسيط حياتك.</p>
-            <div class="flex gap-5 text-xl text-gray-500">
-                <a href="#" class="hover:text-white transition transform hover:scale-110"><i class="fa-brands fa-github"></i></a>
-                <a href="#" class="hover:text-indigo-400 transition transform hover:scale-110"><i class="fa-brands fa-twitter"></i></a>
-            </div>
+    <footer class="border-t border-white/5 py-8 sm:py-10 glass-panel relative z-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 gap-4 sm:gap-6 text-center md:text-right">
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white"><i class="fa-solid fa-wallet text-xs"></i></div><span class="font-bold text-lg">محفظتي الذكية</span></div>
+            <p class="text-gray-500 text-xs sm:text-sm">© 2026 جميع الحقوق محفوظة. صُنع لتبسيط حياتك.</p>
         </div>
     </footer>
 
-    <!-- سكربت التفاعلات (Animations & Accordion) -->
     <script>
-        // تفعيل الـ Accordion للأسئلة الشائعة
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIcon = document.getElementById('menuIcon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('menu-open');
+            if (mobileMenu.classList.contains('menu-open')) {
+                menuIcon.classList.replace('fa-bars', 'fa-xmark');
+                document.body.style.overflow = 'hidden'; // منع التمرير
+            } else {
+                menuIcon.classList.replace('fa-xmark', 'fa-bars');
+                document.body.style.overflow = '';
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        mobileLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+        // FAQ Accordion
         document.querySelectorAll('.faq-item').forEach(item => {
             item.addEventListener('click', () => {
                 const isActive = item.classList.contains('active');
-                // إغلاق البقية
                 document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('active'));
-                // فتح العنصر المضغوط إذا لم يكن مفتوحاً
                 if (!isActive) item.classList.add('active');
             });
         });
 
-        // تأثير الظهور عند التمرير (Scroll Reveal)
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.15
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    observer.unobserve(entry.target); // إيقاف المراقبة بعد الظهور
+                    observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
-
+        }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
