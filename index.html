@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محفظتي الذكية | Smart Wallet</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            color-scheme: dark; /* لجعل التقويم (Datepicker) يظهر باللون الداكن */
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(45deg, #020617, #0f172a, #1e1b4b);
+            background-size: 300% 300%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .font-numbers { font-family: 'Space Grotesk', sans-serif; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .credit-card {
+            background: linear-gradient(135deg, #4f46e5, #9333ea, #db2777);
+            box-shadow: 0 20px 40px -10px rgba(147, 51, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .credit-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* إخفاء شريط التمرير العادي وجعل التصنيفات قابلة للسحب */
+        ::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="flex justify-center items-start pb-32 px-4 sm:px-0">
+
+    <!-- نظام الإشعارات (Toast) -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass-panel bg-slate-900/90 text-white px-6 py-3 rounded-full shadow-2xl transition-all duration-300 transform -translate-y-24 opacity-0 z-[100] flex items-center gap-3 font-bold text-sm pointer-events-none w-max max-w-[90%]">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMsg">تمت العملية بنجاح</span>
+    </div>
+
+    <div class="w-full max-w-md relative mt-6">
+        
+        <!-- الهيدر -->
+        <header class="flex justify-between items-center mb-6 px-2 animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <i class="fa-solid fa-wallet text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">محفظتي</h1>
+                    <p class="text-[10px] text-gray-400 tracking-wider">SMART WALLET</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportData()" title="تصدير لـ Obsidian" class="w-9 h-9 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-95"><i class="fa-solid fa-cloud-arrow-down text-indigo-300"></i></button>
+                <button onclick="document.getElementById('importFile').click()" title="استيراد" class="w-9 h-9 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-95"><i class="fa-solid fa-cloud-arrow-up text-purple-300"></i></button>
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+            </div>
+        </header>
+
+        <!-- بطاقة الرصيد -->
+        <div class="credit-card rounded-3xl p-6 mb-8 text-white animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start mb-6 relative z-10">
+                <div>
+                    <p class="text-white/70 text-sm font-medium mb-1">إجمالي الرصيد</p>
+                    <h2 class="text-4xl font-bold font-numbers tracking-tight" id="totalBalance">0.00</h2>
+                </div>
+                <i class="fa-brands fa-nfc-symbol text-2xl text-white/50"></i>
+            </div>
+
+            <!-- مؤشر الصرف -->
+            <div class="relative z-10">
+                <div class="flex justify-between text-xs mb-2 text-white/90 font-semibold">
+                    <span>مؤشر الاستهلاك</span>
+                    <span id="expenseRatioText" class="font-numbers">0%</span>
+                </div>
+                <div class="h-1.5 w-full bg-black/30 rounded-full overflow-hidden">
+                    <div id="expenseProgressBar" class="h-full bg-emerald-400 rounded-full transition-all duration-1000 ease-out" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
+                <div>
+                    <p class="text-white/70 text-[11px] mb-1 flex items-center gap-1"><i class="fa-solid fa-arrow-down text-emerald-300"></i> الدخل</p>
+                    <p class="text-lg font-bold font-numbers" id="totalIncome">0.00</p>
+                </div>
+                <div class="text-left">
+                    <p class="text-white/70 text-[11px] mb-1 flex items-center gap-1 justify-end">المصروفات <i class="fa-solid fa-arrow-up text-rose-300"></i></p>
+                    <p class="text-lg font-bold font-numbers" id="totalExpense">0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- القوائم -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="flex justify-between items-end mb-4 px-2">
+                <h3 id="listTitle" class="text-lg font-bold">آخر المعاملات</h3>
+                <span id="listCount" class="text-[10px] font-bold text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">0 معاملة</span>
+            </div>
+
+            <!-- الحاويات -->
+            <div id="transactionsList" class="space-y-3"></div>
+            <div id="debtsList" class="space-y-3 hidden"></div>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm glass-panel bg-slate-900/80 rounded-full px-6 py-3 flex justify-between items-center z-40 border border-white/10 shadow-2xl shadow-black">
+        <button onclick="switchTab('transactions')" id="nav-tx" class="flex flex-col items-center gap-1 text-indigo-400 w-16 transition-colors">
+            <i class="fa-solid fa-layer-group text-xl"></i>
+            <span class="text-[10px] font-bold">السجل</span>
+        </button>
+
+        <div class="relative -top-8" id="fabContainer">
+            <button onclick="toggleActionMenu(event)" class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/50 text-white text-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-[3px] border-slate-900">
+                <i class="fa-solid fa-plus transition-transform duration-300" id="plusIcon"></i>
+            </button>
+            <div id="actionMenu" class="absolute bottom-16 left-1/2 -translate-x-1/2 flex-col gap-2 hidden scale-95 opacity-0 transition-all duration-200 origin-bottom">
+                <button onclick="openModal('transactionModal')" class="glass-panel bg-slate-800 w-36 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-700 active:scale-95 border border-white/10 shadow-xl">
+                    <i class="fa-solid fa-money-bill-transfer text-emerald-400"></i> إضافة معاملة
+                </button>
+                <button onclick="openModal('debtModal')" class="glass-panel bg-slate-800 w-36 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-700 active:scale-95 border border-white/10 shadow-xl">
+                    <i class="fa-solid fa-hand-holding-dollar text-orange-400"></i> تسجيل دين
+                </button>
+            </div>
+        </div>
+
+        <button onclick="switchTab('debts')" id="nav-debts" class="flex flex-col items-center gap-1 text-gray-500 hover:text-indigo-300 w-16 transition-colors">
+            <i class="fa-solid fa-book-open text-xl"></i>
+            <span class="text-[10px] font-bold">الديون</span>
+        </button>
+    </div>
+
+    <!-- نافذة إضافة معاملة -->
+    <div id="transactionModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex-col justify-end z-50 transition-opacity">
+        <div class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-3xl border-b-0 animate-slide-up max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">معاملة جديدة</h3>
+                <button onclick="closeModal('transactionModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-rose-500/20 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="txForm" onsubmit="addTransaction(event)">
+                <div class="flex bg-slate-800/50 rounded-xl p-1 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="expense" checked class="peer hidden">
+                        <div class="peer-checked:bg-rose-500 peer-checked:shadow-lg peer-checked:shadow-rose-500/30 rounded-lg py-2 transition-all font-bold text-gray-400 peer-checked:text-white text-sm">مصروف</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="income" class="peer hidden">
+                        <div class="peer-checked:bg-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-500/30 rounded-lg py-2 transition-all font-bold text-gray-400 peer-checked:text-white text-sm">دخل</div>
+                    </label>
+                </div>
+
+                <!-- حقل التاريخ -->
+                <div class="relative mb-4">
+                    <input type="date" id="txDate" required class="w-full glass-panel bg-slate-800/50 py-3 px-4 outline-none focus:border-indigo-400 transition font-numbers text-sm rounded-xl border-white/5 text-gray-300">
+                </div>
+
+                <!-- حقل المبلغ -->
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-coins absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="number" id="txAmount" inputmode="decimal" placeholder="المبلغ 0.00" required class="w-full glass-panel bg-slate-800/50 py-4 pr-12 pl-4 outline-none focus:border-indigo-400 transition font-numbers text-xl rounded-xl border-white/5" step="0.01" min="0.01">
+                </div>
+                
+                <!-- تصنيفات سريعة وحقل إدخال يدوي -->
+                <div class="mb-6">
+                    <p class="text-[10px] text-gray-400 mb-2 px-1">تصنيفات سريعة:</p>
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar mb-3 pb-1">
+                        <button type="button" onclick="setCategory('طعام')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-utensils ml-1 text-rose-300"></i> طعام</button>
+                        <button type="button" onclick="setCategory('مواصلات')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-car ml-1 text-blue-300"></i> مواصلات</button>
+                        <button type="button" onclick="setCategory('سوبر ماركت')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-basket-shopping ml-1 text-orange-300"></i> سوبر ماركت</button>
+                        <button type="button" onclick="setCategory('فواتير')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-file-invoice ml-1 text-emerald-300"></i> فواتير</button>
+                        <button type="button" onclick="setCategory('صحة')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-pills ml-1 text-teal-300"></i> صحة</button>
+                        <button type="button" onclick="setCategory('راتب')" class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs whitespace-nowrap hover:bg-indigo-500/30 transition active:scale-95"><i class="fa-solid fa-sack-dollar ml-1 text-emerald-400"></i> راتب</button>
+                    </div>
+                    
+                    <div class="relative">
+                        <i class="fa-solid fa-pen absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="txCategory" placeholder="أو اكتب التصنيف هنا..." required class="w-full glass-panel bg-slate-800/50 py-4 pr-11 pl-4 outline-none focus:border-indigo-400 transition rounded-xl border-white/5">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 active:scale-95 py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-purple-500/30">حفظ المعاملة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة دين -->
+    <div id="debtModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex-col justify-end z-50 transition-opacity">
+        <div class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-3xl border-b-0 animate-slide-up max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">تسجيل دين</h3>
+                <button onclick="closeModal('debtModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-rose-500/20 transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="debtForm" onsubmit="addDebt(event)">
+                <div class="flex bg-slate-800/50 rounded-xl p-1 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="lent" checked class="peer hidden">
+                        <div class="peer-checked:bg-blue-500 peer-checked:shadow-lg peer-checked:shadow-blue-500/30 rounded-lg py-2 transition-all font-bold text-gray-400 peer-checked:text-white text-sm">لي (أقرضت)</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="borrowed" class="peer hidden">
+                        <div class="peer-checked:bg-orange-500 peer-checked:shadow-lg peer-checked:shadow-orange-500/30 rounded-lg py-2 transition-all font-bold text-gray-400 peer-checked:text-white text-sm">عليّ (استلفت)</div>
+                    </label>
+                </div>
+
+                <!-- حقل التاريخ للدين -->
+                <div class="relative mb-4">
+                    <input type="date" id="debtDate" required class="w-full glass-panel bg-slate-800/50 py-3 px-4 outline-none focus:border-indigo-400 transition font-numbers text-sm rounded-xl border-white/5 text-gray-300">
+                </div>
+
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-user absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="debtPerson" placeholder="اسم الشخص (مثال: أحمد)" required class="w-full glass-panel bg-slate-800/50 py-4 pr-12 pl-4 outline-none focus:border-indigo-400 transition rounded-xl border-white/5">
+                </div>
+
+                <div class="relative mb-6">
+                    <i class="fa-solid fa-coins absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="number" id="debtAmount" inputmode="decimal" placeholder="المبلغ 0.00" required class="w-full glass-panel bg-slate-800/50 py-4 pr-12 pl-4 outline-none focus:border-indigo-400 transition font-numbers text-xl rounded-xl border-white/5" step="0.01" min="0.01">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 active:scale-95 py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-purple-500/30">حفظ الدين</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- السكربت -->
+    <script>
+        let appData = { transactions: [], debts: [] };
+
+        // إعداد تاريخ اليوم كافتراضي للحقول
+        const setTodayDefault = () => {
+            const today = new Date().toISOString().split('T')[0]; // صيغة YYYY-MM-DD
+            document.getElementById('txDate').value = today;
+            document.getElementById('debtDate').value = today;
+        };
+
+        // تنسيق التاريخ للعرض الجميل (مثال: 15 أكتوبر 2023)
+        const formatDisplayDate = (dateString) => {
+            if(!dateString) return '';
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('ar-EG', options);
+        };
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = message;
+            
+            if(type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            } else {
+                icon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
+            }
+
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            setTimeout(() => { toast.classList.add('-translate-y-24', 'opacity-0'); }, 3000);
+        }
+
+        // اختيار سريع للتصنيف
+        function setCategory(categoryName) {
+            const input = document.getElementById('txCategory');
+            input.value = categoryName;
+            // تأثير بصري خفيف للإدخال
+            input.parentElement.classList.add('scale-[1.02]');
+            setTimeout(() => input.parentElement.classList.remove('scale-[1.02]'), 150);
+            input.focus();
+        }
+
+        function getIconForCategory(category, type) {
+            const cat = category.toLowerCase();
+            if(type === 'income' || cat.includes('راتب') || cat.includes('مكافأة')) return 'fa-arrow-trend-up';
+            if(cat.includes('أكل') || cat.includes('طعام') || cat.includes('مطعم')) return 'fa-utensils';
+            if(cat.includes('مواصلات') || cat.includes('بنزين') || cat.includes('سيارة')) return 'fa-car';
+            if(cat.includes('كهرباء') || cat.includes('انترنت') || cat.includes('فواتير')) return 'fa-file-invoice-dollar';
+            if(cat.includes('سوبر') || cat.includes('بقالة') || cat.includes('شراء')) return 'fa-basket-shopping';
+            if(cat.includes('صحة') || cat.includes('صيدلية') || cat.includes('علاج')) return 'fa-pills';
+            return 'fa-bag-shopping';
+        }
+
+        const formatMoney = (num) => parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        function init() {
+            const savedData = localStorage.getItem('smartWalletV3');
+            if (savedData) appData = JSON.parse(savedData);
+            setTodayDefault();
+            updateUI();
+        }
+
+        function updateUI() {
+            // ترتيب المعاملات حسب التاريخ المختار (من الأحدث للأقدم)
+            appData.transactions.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+            appData.debts.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+            
+            renderTransactions();
+            renderDebts();
+            calculateDashboard();
+            saveToLocal();
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('smartWalletV3', JSON.stringify(appData));
+        }
+
+        function calculateDashboard() {
+            let income = 0, expense = 0;
+            appData.transactions.forEach(tx => {
+                if (tx.type === 'income') income += tx.amount;
+                if (tx.type === 'expense') expense += tx.amount;
+            });
+
+            const balance = income - expense;
+            
+            document.getElementById('totalBalance').innerHTML = `${formatMoney(balance)} <span class="text-xl font-sans opacity-70">ج.م</span>`;
+            document.getElementById('totalIncome').innerText = formatMoney(income);
+            document.getElementById('totalExpense').innerText = formatMoney(expense);
+
+            let expenseRatio = 0;
+            if (income > 0) expenseRatio = (expense / income) * 100;
+            else if (expense > 0) expenseRatio = 100; 
+            
+            if(expenseRatio > 100) expenseRatio = 100;
+            
+            const bar = document.getElementById('expenseProgressBar');
+            bar.style.width = `${expenseRatio}%`;
+            document.getElementById('expenseRatioText').innerText = `${expenseRatio.toFixed(0)}%`;
+            
+            if(expenseRatio >= 90) bar.className = 'h-full bg-rose-500 rounded-full transition-all duration-1000 ease-out';
+            else if (expenseRatio >= 70) bar.className = 'h-full bg-orange-400 rounded-full transition-all duration-1000 ease-out';
+            else bar.className = 'h-full bg-emerald-400 rounded-full transition-all duration-1000 ease-out';
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transactionsList');
+            list.innerHTML = '';
+            
+            if (appData.transactions.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fa-solid fa-receipt text-5xl mb-3 text-gray-600"></i><p>لا توجد معاملات بعد</p></div>`;
+                document.getElementById('listCount').innerText = '0 معاملة';
+                return;
+            }
+
+            document.getElementById('listCount').innerText = `${appData.transactions.length} معاملة`;
+
+            appData.transactions.forEach((tx, i) => {
+                const isInc = tx.type === 'income';
+                const styles = isInc 
+                    ? { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', sign: '+' } 
+                    : { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', sign: '-' };
+                
+                const icon = getIconForCategory(tx.category, tx.type);
+                const displayDate = formatDisplayDate(tx.dateStr);
+
+                list.innerHTML += `
+                    <div class="glass-panel p-4 rounded-2xl flex justify-between items-center group transition duration-300 hover:bg-white/5 animate-slide-up relative overflow-hidden" style="animation-delay: ${i * 0.05}s">
+                        <div class="flex items-center gap-4 w-[60%]">
+                            <div class="w-12 h-12 flex-shrink-0 rounded-xl ${styles.bg} border ${styles.border} flex items-center justify-center ${styles.text} text-lg">
+                                <i class="fa-solid ${icon}"></i>
+                            </div>
+                            <div class="truncate">
+                                <p class="font-bold text-md text-white/90 truncate">${tx.category}</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5"><i class="fa-regular fa-calendar ml-1"></i>${displayDate}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p class="font-bold text-lg font-numbers ${styles.text}" dir="ltr">${styles.sign}${formatMoney(tx.amount)}</p>
+                            <button onclick="deleteTx(${tx.id})" class="w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-rose-500 hover:text-white" title="حذف">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderDebts() {
+            const list = document.getElementById('debtsList');
+            list.innerHTML = '';
+            
+            if (appData.debts.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fa-solid fa-handshake-slash text-5xl mb-3 text-gray-600"></i><p>لا توجد ديون مسجلة</p></div>`;
+                return;
+            }
+
+            appData.debts.forEach((debt, i) => {
+                const isLent = debt.type === 'lent';
+                const styles = isLent 
+                    ? { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'لي عند' } 
+                    : { text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'عليّ لـ' };
+                
+                const opacity = debt.isPaid ? 'opacity-40 grayscale' : '';
+                const displayDate = formatDisplayDate(debt.dateStr);
+                
+                list.innerHTML += `
+                    <div class="glass-panel p-4 rounded-2xl ${opacity} animate-slide-up group" style="animation-delay: ${i * 0.05}s">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3 w-[60%]">
+                                <div class="w-11 h-11 flex-shrink-0 rounded-full ${styles.bg} flex items-center justify-center ${styles.text} border ${styles.border}">
+                                    <i class="fa-solid fa-user-astronaut"></i>
+                                </div>
+                                <div class="truncate">
+                                    <p class="text-[10px] text-gray-400">${styles.label}</p>
+                                    <p class="font-bold text-white/90 truncate">${debt.person}</p>
+                                    <p class="text-[9px] text-gray-500 mt-0.5"><i class="fa-regular fa-calendar ml-1"></i>${displayDate}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <p class="font-bold text-lg font-numbers ${styles.text}">${formatMoney(debt.amount)}</p>
+                                <button onclick="deleteDebt(${debt.id})" class="w-7 h-7 rounded-full bg-rose-500/10 text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-rose-500 hover:text-white">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${!debt.isPaid ? `
+                            <button onclick="markDebtPaid(${i})" class="w-full mt-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold hover:bg-white/10 active:scale-[0.98] transition text-white/70">
+                                <i class="fa-solid fa-check-circle mr-1 ${styles.text}"></i> تحديد كـ "تم السداد"
+                            </button>
+                        ` : `
+                            <div class="w-full mt-4 py-1.5 text-center text-xs font-bold text-emerald-400 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                                <i class="fa-solid fa-check-double mr-1"></i> تم السداد
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+        }
+
+        // تسجيل المعاملات مع التاريخ
+        function addTransaction(e) {
+            e.preventDefault();
+            const type = document.querySelector('input[name="txType"]:checked').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const category = document.getElementById('txCategory').value;
+            const dateStr = document.getElementById('txDate').value; // أخذ التاريخ المختار
+
+            appData.transactions.push({ id: Date.now(), type, amount, category, dateStr });
+            document.getElementById('txForm').reset();
+            setTodayDefault(); // إعادة التاريخ لليوم
+            closeModal('transactionModal');
+            updateUI();
+            showToast('تم حفظ المعاملة بنجاح');
+        }
+
+        function deleteTx(id) {
+            if(confirm('هل أنت متأكد من حذف هذه المعاملة؟')) {
+                appData.transactions = appData.transactions.filter(tx => tx.id !== id);
+                updateUI();
+                showToast('تم الحذف', 'error');
+            }
+        }
+
+        // تسجيل الديون مع التاريخ
+        function addDebt(e) {
+            e.preventDefault();
+            const type = document.querySelector('input[name="debtType"]:checked').value;
+            const person = document.getElementById('debtPerson').value;
+            const amount = parseFloat(document.getElementById('debtAmount').value);
+            const dateStr = document.getElementById('debtDate').value; // أخذ التاريخ المختار
+
+            appData.debts.push({ id: Date.now(), type, person, amount, isPaid: false, dateStr });
+            document.getElementById('debtForm').reset();
+            setTodayDefault();
+            closeModal('debtModal');
+            switchTab('debts');
+            updateUI();
+            showToast('تم تسجيل الدين بنجاح');
+        }
+
+        function deleteDebt(id) {
+            if(confirm('هل تريد مسح هذا السجل نهائياً؟')) {
+                appData.debts = appData.debts.filter(d => d.id !== id);
+                updateUI();
+                showToast('تم مسح السجل', 'error');
+            }
+        }
+
+        function markDebtPaid(index) {
+            appData.debts[index].isPaid = true;
+            updateUI();
+            showToast('تم سداد الدين الحمدلله!');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('transactionsList').classList.add('hidden');
+            document.getElementById('debtsList').classList.add('hidden');
+            
+            document.getElementById('nav-tx').classList.replace('text-indigo-400', 'text-gray-500');
+            document.getElementById('nav-debts').classList.replace('text-indigo-400', 'text-gray-500');
+
+            document.getElementById(`${tab}List`).classList.remove('hidden');
+            
+            const activeNav = tab === 'transactions' ? 'nav-tx' : 'nav-debts';
+            document.getElementById(activeNav).classList.replace('text-gray-500', 'text-indigo-400');
+            
+            document.getElementById('listTitle').innerText = tab === 'transactions' ? 'آخر المعاملات' : 'سجل الديون';
+            
+            if(tab === 'debts') document.getElementById('listCount').innerText = `${appData.debts.length} ديون`;
+            else document.getElementById('listCount').innerText = `${appData.transactions.length} معاملة`;
+        }
+
+        function toggleActionMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            const icon = document.getElementById('plusIcon');
+            
+            if(menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('scale-95', 'opacity-0');
+                    icon.style.transform = 'rotate(45deg)';
+                }, 10);
+            } else { closeActionMenu(); }
+        }
+
+        function closeActionMenu() {
+            const menu = document.getElementById('actionMenu');
+            const icon = document.getElementById('plusIcon');
+            if(!menu.classList.contains('hidden')) {
+                menu.classList.add('scale-95', 'opacity-0');
+                icon.style.transform = 'rotate(0deg)';
+                setTimeout(() => menu.classList.add('hidden'), 200);
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('fabContainer').contains(e.target)) closeActionMenu();
+        });
+
+        function openModal(id) {
+            closeActionMenu();
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function exportData() {
+            if(appData.transactions.length === 0 && appData.debts.length === 0) {
+                showToast('المحفظة فارغة', 'error'); return;
+            }
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SmartWalletData_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم تصدير البيانات لتخزينها محلياً');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.transactions || data.debts) { // السماح باستيراد ملفات قديمة
+                        // تحويل التواريخ القديمة للصيغة الجديدة إن لزم الأمر للحفاظ على التوافق
+                        data.transactions.forEach(tx => { if(!tx.dateStr) tx.dateStr = new Date().toISOString().split('T')[0]; });
+                        if(data.debts) data.debts.forEach(d => { if(!d.dateStr) d.dateStr = new Date().toISOString().split('T')[0]; });
+                        
+                        appData = data; updateUI(); showToast('تم استيراد المحفظة بنجاح ✨');
+                    } else throw new Error("Invalid");
+                } catch (err) { showToast('عذراً، الملف غير صالح', 'error'); }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
