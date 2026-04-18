@@ -305,17 +305,35 @@
 
     <script>
         // --- START OF PWA SERVICE WORKER REGISTRATION ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
+// تسجيل الـ Service Worker مع التأكد من التحديث الفوري
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('SW Registered');
+            
+            // التحقق من وجود تحديثات للتطبيق
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showToast('تحديث جديد متاح! أعد تحميل الصفحة', 'success');
+                    }
+                };
+            };
+        });
+    });
+}
+
+// معالجة الـ Shortcuts (الروابط المختصرة من أيقونة التطبيق)
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new-tx') {
+        setTimeout(() => openModal('transactionModal'), 500);
+    }
+    if (urlParams.get('tab') === 'debts') {
+        setTimeout(() => switchTab('debts'), 500);
+    }
+});
         // --- END OF PWA SERVICE WORKER REGISTRATION ---
         let appData = { transactions: [], debts: [] };
 
