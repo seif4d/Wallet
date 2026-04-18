@@ -1,0 +1,28 @@
+{
+  "name": "محفظتي الذكية | Smart Wallet",
+  "short_name": "محفظتي",
+  "description": "تطبيق ذكي وسهل لإدارة مصاريفك، دخلك، وديونك الشخصية.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+        "src": "icons/maskable-icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512",
+        "purpose": "maskable"
+    }
+  ]
+}
