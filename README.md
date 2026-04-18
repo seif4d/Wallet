@@ -1,6 +1,6 @@
-# 💳 Smart Wallet | محفظتي الذكية
 
 <div align="center">
+  <h1>Smart Wallet | محفظتي</h1>
   <img src="https://cdn-icons-png.flaticon.com/512/10149/10149458.png" alt="Wallet Logo" width="120" />
   <br/>
   <h3>تطبيق ذكي وبسيط لإدارة أموالك، ديونك، ومصاريفك اليومية بخصوصية تامة.</h3>
