@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
+    <!-- PWA Manifest & iOS Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
     <script>
         tailwind.config = {
             theme: {
@@ -300,6 +304,19 @@
     </div>
 
     <script>
+        // --- START OF PWA SERVICE WORKER REGISTRATION ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        // --- END OF PWA SERVICE WORKER REGISTRATION ---
         let appData = { transactions: [], debts: [] };
 
         // UX: Haptic Feedback helper
