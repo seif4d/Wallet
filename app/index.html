@@ -1,1035 +1,744 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#080808">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>V-Cash Pro</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Syne:wght@700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: { extend: {
-      fontFamily: { sans:['Cairo','sans-serif'], display:['Syne','sans-serif'], mono:['DM Mono','monospace'] },
-      colors: { voda: { red:'#E60000', light:'#FF3333', dark:'#080808', gold:'#C8A84B' } }
-    }}
-  }
-</script>
-<style>
-  :root { --red:#E60000; --gold:#C8A84B; --border:rgba(255,255,255,0.07); --card:#0f0f0f; }
-  *,*::before,*::after { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { background:#080808; color:#fff; overflow-x:hidden; font-family:'Cairo',sans-serif; }
-  ::-webkit-scrollbar { display:none; }
-  .hide-scroll { -ms-overflow-style:none; scrollbar-width:none; }
-  .pb-safe { padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px); }
-  .pt-safe { padding-top:max(env(safe-area-inset-top,0px),20px); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#020617">
+    
+    <!-- PWA & SEO Meta Tags -->
+    <title>محفظتي الذكية | Smart Wallet</title>
+    <meta name="description" content="تطبيق ذكي وسهل لإدارة مصاريفك، دخلك، وديونك الشخصية.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
 
-  /* Glass */
-  .glass { background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); }
-  .glass-dark { background:rgba(0,0,0,0.6); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid var(--border); }
-  .panel { background:linear-gradient(160deg,rgba(20,20,20,.9) 0%,rgba(10,10,10,.95) 100%); border:1px solid var(--border); }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
-  /* Debit Card */
-  .debit-card {
-    background:linear-gradient(135deg,#1c1c1c 0%,#0e0e0e 45%,#1a0000 100%);
-    border:1px solid rgba(230,0,0,.2);
-    box-shadow:0 28px 56px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);
-    position:relative; overflow:hidden; border-radius:24px;
-  }
-  .debit-card::before {
-    content:''; position:absolute; inset:0;
-    background:radial-gradient(ellipse at 75% 15%, rgba(230,0,0,.3) 0%, transparent 55%);
-    pointer-events:none; z-index:1;
-  }
-  .card-noise {
-    position:absolute; inset:0; opacity:.03;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    pointer-events:none; z-index:2;
-  }
-  .card-shine {
-    position:absolute; top:0; left:-200%; width:55%; height:100%;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
-    transform:skewX(-18deg); animation:shine 9s ease-in-out infinite; z-index:3; pointer-events:none;
-  }
-  @keyframes shine { 0%{left:-200%} 25%{left:250%} 100%{left:250%} }
+    <!-- PWA Manifest & iOS Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
 
-  /* EMV Chip */
-  .chip {
-    width:42px; height:30px; border-radius:6px; position:relative;
-    background:linear-gradient(135deg,#b8922a 0%,#e8c560 35%,#a07020 65%,#c8a030 100%);
-    box-shadow:0 2px 6px rgba(0,0,0,.5); overflow:hidden;
-  }
-  .chip::before { content:''; position:absolute; inset:5px; border:1px solid rgba(0,0,0,.25); border-radius:2px; }
-  .chip-h { position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(0,0,0,.2); }
-  .chip-v { position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(0,0,0,.2); }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        numbers: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
-  /* Animations */
-  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
-  @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes popIn   { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
-  @keyframes pulseDot{ 0%,100%{opacity:1} 50%{opacity:.4} }
-  @keyframes bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-  @keyframes barGrow { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+    <style>
+        body {
+            background-color: #020617;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 70%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-  .anim-fade { animation:fadeIn .45s ease forwards; }
-  .anim-up   { animation:slideUp .55s cubic-bezier(.22,1,.36,1) forwards; opacity:0; }
-  .anim-pop  { animation:popIn .5s cubic-bezier(.22,1,.36,1) forwards; opacity:0; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-  /* Navigation */
-  .nav-dock { background:rgba(10,10,10,.92); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); border:1px solid rgba(255,255,255,.09); border-radius:28px; }
-  .nav-btn   { color:#3a3a3a; transition:all .3s cubic-bezier(.4,0,.2,1); flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 0; }
-  .nav-btn.active { color:#fff; }
-  .nav-btn.active i { filter:drop-shadow(0 0 10px rgba(255,255,255,.35)); }
-  .nav-dot { width:4px; height:4px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); margin:3px auto 0; opacity:0; transition:opacity .3s; }
-  .nav-btn.active .nav-dot { opacity:1; }
+        .credit-card {
+            background: linear-gradient(135deg, #4f46e5, #c026d3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.5);
+        }
 
-  /* Modal */
-  .modal-overlay { opacity:0; pointer-events:none; transition:opacity .3s; background:rgba(0,0,0,.85); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
-  .modal-overlay.open { opacity:1; pointer-events:auto; }
-  .modal-sheet { transform:translateY(100%); transition:transform .45s cubic-bezier(.32,.72,0,1); }
-  .modal-overlay.open .modal-sheet { transform:translateY(0); }
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 6s infinite linear;
+            pointer-events: none;
+        }
 
-  /* Progress */
-  .prog { height:5px; background:#1c1c1c; border-radius:99px; overflow:hidden; }
-  .prog-fill { height:100%; border-radius:99px; transition:width 1.2s cubic-bezier(.22,1,.36,1); }
+        @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+        
+        .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
 
-  /* Filter chips */
-  .chip-btn { padding:7px 14px; border-radius:12px; font-size:11px; font-weight:700; white-space:nowrap; transition:all .25s; border:1px solid var(--border); }
-  .chip-btn.on  { background:#fff; color:#000; border-color:transparent; }
-  .chip-btn.off { background:rgba(255,255,255,.04); color:#888; }
+        ::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Drag zone */
-  .drop-zone { border:1.5px dashed rgba(255,255,255,.12); transition:all .3s; }
-  .drop-zone.dragging { border-color:var(--red); background:rgba(230,0,0,.05); }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-  /* Bar chart */
-  .bar-col { transform-origin:bottom; animation:barGrow .7s cubic-bezier(.22,1,.36,1) backwards; }
-  
-  /* Sparkline */
-  .spark-path { fill:none; stroke:url(#sg); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .spark-area { fill:url(#sag); }
+        .modal-sheet { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform: translateY(100%); }
+        .modal-active .modal-sheet { transform: translateY(0); }
+        
+        .modal-overlay { transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
+        .modal-active.modal-overlay { opacity: 1; pointer-events: auto; }
 
-  /* Action buttons */
-  .act-btn { transition:transform .18s; }
-  .act-btn:active { transform:scale(.91); }
-
-  /* Toast */
-  #toast { transition:all .4s cubic-bezier(.22,1,.36,1); }
-</style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+    </style>
 </head>
-<body class="selection:bg-red-900/30">
 
-<!-- Ambient Glows -->
-<div class="fixed top-0 left-0 w-[65vw] h-[65vw] rounded-full pointer-events-none -z-10" style="background:radial-gradient(circle,rgba(230,0,0,.12) 0%,transparent 70%);filter:blur(60px);transform:translate(-30%,-30%)"></div>
-<div class="fixed bottom-0 right-0 w-[55vw] h-[55vw] rounded-full pointer-events-none -z-10" style="background:radial-gradient(circle,rgba(230,0,0,.07) 0%,transparent 70%);filter:blur(50px);transform:translate(30%,30%)"></div>
+<body class="pb-40 pt-safe selection:bg-indigo-500/30">
 
-<!-- Toast -->
-<div id="toast" class="fixed z-[100] left-1/2 -translate-x-1/2 flex items-center gap-2.5 px-5 py-3 rounded-full glass-dark border border-white/10 shadow-2xl text-sm font-bold max-w-[88vw]" style="top:max(env(safe-area-inset-top,16px),16px);transform:translateX(-50%) translateY(-80px);opacity:0">
-  <i id="toast-ico" class="fa-solid fa-check-circle text-emerald-400 text-base"></i>
-  <span id="toast-msg">رسالة</span>
-</div>
-
-<!-- Loading -->
-<div id="loading" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[90] hidden flex-col items-center justify-center gap-6 text-center px-8">
-  <div class="relative w-24 h-24">
-    <div class="absolute inset-0 border-[3px] border-voda-red/20 rounded-full"></div>
-    <div class="absolute inset-0 border-[3px] border-t-voda-red border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-    <div class="absolute inset-0 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass-chart text-3xl text-white/70"></i></div>
-  </div>
-  <div>
-    <h2 class="text-xl font-black mb-1">تحليل ذكي للبيانات</h2>
-    <p class="text-gray-500 text-sm">يتم استخراج جميع العمليات تلقائياً...</p>
-  </div>
-</div>
-
-<!-- App Shell -->
-<div class="w-full max-w-md mx-auto relative min-h-screen flex flex-col px-4">
-
-  <!-- Header -->
-  <header class="flex items-center justify-between mb-5 pt-safe shrink-0 anim-up">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden relative" style="background:linear-gradient(135deg,#1a1a1a,#000)">
-        <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/vodafone-icon.png" class="w-5 h-5 object-contain invert" alt="">
-        <div class="absolute inset-0 bg-voda-red/15 mix-blend-overlay"></div>
-      </div>
-      <div>
-        <h1 class="text-lg font-black leading-none tracking-wide" style="font-family:'Syne',sans-serif">V-Cash <span style="color:var(--red)">PRO</span></h1>
-        <div class="flex items-center gap-1.5 mt-0.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-600" id="s-dot" style="animation:pulseDot 2s infinite"></span>
-          <span class="text-[9px] font-bold uppercase tracking-widest text-gray-500" id="s-txt">غير متصل</span>
-        </div>
-      </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 glass-panel bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transition-all duration-300 transform -translate-y-24 opacity-0 z-[100] flex items-center gap-3 font-bold text-sm w-max max-w-[90%] border-t border-white/10">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMsg">رسالة</span>
     </div>
-    <button onclick="triggerUpload()" class="w-9 h-9 rounded-full glass flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/8 transition" title="رفع ملف جديد">
-      <i class="fa-solid fa-arrow-up-from-bracket text-sm"></i>
-    </button>
-    <input type="file" id="fileIn" accept=".txt" class="hidden" onchange="handleFile(event)">
-  </header>
 
-  <!-- Empty State -->
-  <div id="empty" class="flex-1 flex flex-col items-center justify-center text-center pb-20 anim-up" style="animation-delay:.1s">
-    <!-- Drop Zone -->
-    <div id="dropZone" class="drop-zone w-full rounded-3xl p-10 mb-6 flex flex-col items-center gap-4 cursor-pointer" onclick="triggerUpload()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
-      <div class="relative w-28 h-28">
-        <div class="absolute inset-0 rounded-3xl rotate-12 opacity-30 blur-lg" style="background:linear-gradient(135deg,var(--red),#4a0000)"></div>
-        <div class="absolute inset-0 rounded-3xl -rotate-6 panel flex items-center justify-center overflow-hidden">
-          <div class="absolute top-0 right-0 w-16 h-16 rounded-full" style="background:radial-gradient(circle,rgba(230,0,0,.2),transparent);filter:blur(12px)"></div>
-          <i class="fa-solid fa-credit-card text-5xl text-white/20"></i>
-        </div>
-        <div class="absolute bottom-1 -left-2 w-11 h-11 rounded-full flex items-center justify-center border-2 border-[#080808] shadow-xl" style="background:var(--red);animation:bounce 2.5s ease-in-out infinite">
-          <i class="fa-solid fa-bolt text-white text-base"></i>
-        </div>
-      </div>
-      <div>
-        <h2 class="text-2xl font-black mb-2 tracking-tight">أسقط ملفك هنا</h2>
-        <p class="text-gray-400 text-sm leading-relaxed max-w-[260px] mx-auto">أو انقر لاختيار ملف رسائل فودافون كاش (.txt)</p>
-      </div>
-    </div>
-    <button onclick="triggerUpload()" class="w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-3 bg-white text-black hover:bg-gray-100 transition-colors shadow-[0_12px_32px_rgba(255,255,255,.12)]">
-      <i class="fa-solid fa-file-import text-voda-red"></i> تحليل السجل الآن
-    </button>
-    <p class="text-[10px] text-gray-600 font-bold mt-4 flex items-center gap-1.5 justify-center">
-      <i class="fa-solid fa-shield-halved"></i> معالجة كاملة على جهازك · لا يُرفع أي بيانات
-    </p>
-  </div>
+    <datalist id="peopleNamesList"></datalist>
 
-  <!-- Dashboard -->
-  <div id="dash" class="hidden flex-1 flex flex-col">
-
-    <!-- TAB: HOME -->
-    <div id="v-home" class="flex flex-col gap-5 anim-fade pb-safe hide-scroll overflow-y-auto">
-      
-      <!-- Debit Card -->
-      <div class="debit-card anim-pop" style="aspect-ratio:1.586;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between">
-        <div class="card-noise"></div>
-        <div class="card-shine"></div>
-        <div class="relative z-10 flex items-center justify-between">
-          <div class="chip"><div class="chip-h"></div><div class="chip-v"></div></div>
-          <div class="text-right">
-            <div class="text-[9px] font-bold tracking-[.2em] text-white/40 uppercase mb-0.5">Wallet</div>
-            <div class="font-mono text-[11px] text-white/60 font-medium" id="c-wallet">—</div>
-          </div>
-        </div>
-        <div class="relative z-10">
-          <div class="text-[9px] font-bold uppercase tracking-[.2em] text-white/40 mb-1">الرصيد المتاح</div>
-          <div id="c-balance" class="text-[2.5rem] font-black leading-none text-white" style="font-family:'DM Mono',monospace">
-            0<span style="font-size:1.5rem;opacity:.6">.00</span>
-          </div>
-          <div class="flex items-end justify-between mt-4">
-            <div class="font-mono text-white/50 text-sm tracking-[.18em]" id="c-period">····  ····  ····</div>
-            <div class="flex flex-col items-end gap-1">
-              <div class="w-8 h-5 relative"><div class="absolute w-5 h-5 rounded-full" style="background:rgba(230,0,0,.8);left:0"></div><div class="absolute w-5 h-5 rounded-full" style="background:rgba(200,168,75,.8);right:0;mix-blend-mode:screen"></div></div>
-              <div class="text-[8px] text-white/40 font-bold tracking-widest uppercase">VCASH</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="grid grid-cols-4 gap-2 anim-up" style="animation-delay:.08s">
-        <button onclick="goTab('transactions');setMainFilter('out')" class="act-btn flex flex-col items-center gap-2 py-3 panel rounded-2xl hover:bg-white/5 transition">
-          <div class="w-10 h-10 rounded-full glass flex items-center justify-center"><i class="fa-solid fa-arrow-up text-sm"></i></div>
-          <span class="text-[10px] text-gray-400 font-bold">صادر</span>
-        </button>
-        <button onclick="goTab('transactions');setMainFilter('in')" class="act-btn flex flex-col items-center gap-2 py-3 panel rounded-2xl hover:bg-white/5 transition">
-          <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-emerald-400"><i class="fa-solid fa-arrow-down text-sm"></i></div>
-          <span class="text-[10px] text-gray-400 font-bold">وارد</span>
-        </button>
-        <button onclick="goTab('people')" class="act-btn flex flex-col items-center gap-2 py-3 panel rounded-2xl hover:bg-white/5 transition">
-          <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-blue-400"><i class="fa-solid fa-user-group text-sm"></i></div>
-          <span class="text-[10px] text-gray-400 font-bold">أشخاص</span>
-        </button>
-        <button onclick="goTab('analytics')" class="act-btn flex flex-col items-center gap-2 py-3 panel rounded-2xl hover:bg-white/5 transition">
-          <div class="w-10 h-10 rounded-full glass flex items-center justify-center text-purple-400"><i class="fa-solid fa-chart-line text-sm"></i></div>
-          <span class="text-[10px] text-gray-400 font-bold">تحليل</span>
-        </button>
-      </div>
-
-      <!-- Cash Flow -->
-      <div class="panel rounded-2xl p-5 anim-up" style="animation-delay:.14s">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-sm font-black text-white">تدفق الأموال</h3>
-          <span class="text-[10px] text-gray-500 glass px-2.5 py-1 rounded-lg font-mono border-0" id="tx-count">0 عملية</span>
-        </div>
-        <div class="prog mb-3">
-          <div id="bar-in" class="prog-fill bg-emerald-500 shadow-[0_0_8px_#10b981]" style="width:0;float:right"></div>
-          <div id="bar-out" class="prog-fill bg-voda-red shadow-[0_0_8px_#E60000]" style="width:0"></div>
-        </div>
-        <div class="flex justify-between">
-          <div>
-            <div class="flex items-center gap-1.5 mb-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-[10px] text-gray-500 font-bold">وارد</span></div>
-            <div class="font-mono text-white font-bold text-sm" id="h-in">0.00</div>
-          </div>
-          <div class="text-right">
-            <div class="flex items-center gap-1.5 mb-1 justify-end"><span class="text-[10px] text-gray-500 font-bold">صادر</span><span class="w-2 h-2 rounded-full bg-voda-red"></span></div>
-            <div class="font-mono text-white font-bold text-sm" id="h-out">0.00</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Balance Sparkline -->
-      <div class="panel rounded-2xl p-5 anim-up" style="animation-delay:.18s" id="sparkSection">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-sm font-black text-white">تطور الرصيد</h3>
-          <span class="text-[10px] text-gray-500 font-mono" id="spark-range">—</span>
-        </div>
-        <div id="sparkContainer" class="h-16 w-full relative overflow-hidden"></div>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="anim-up" style="animation-delay:.22s">
-        <h3 class="text-sm font-black text-white mb-3 px-1">تحليل المصروفات</h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="panel rounded-2xl p-4">
-            <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mb-6"><i class="fa-solid fa-money-bill text-xs text-gray-400"></i></div>
-            <div class="text-[10px] text-gray-500 font-bold mb-1">سحب ATM</div>
-            <div class="font-mono font-bold text-white text-base" id="st-atm">0.00</div>
-          </div>
-          <div class="panel rounded-2xl p-4">
-            <div class="w-8 h-8 rounded-full bg-emerald-900/30 flex items-center justify-center mb-6"><i class="fa-solid fa-arrow-right-to-city text-xs text-emerald-400"></i></div>
-            <div class="text-[10px] text-gray-500 font-bold mb-1">إيداع نقدي</div>
-            <div class="font-mono font-bold text-emerald-400 text-base" id="st-dep">0.00</div>
-          </div>
-          <div class="panel rounded-2xl p-4">
-            <div class="w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center mb-6"><i class="fa-solid fa-mobile-screen text-xs text-blue-400"></i></div>
-            <div class="text-[10px] text-gray-500 font-bold mb-1">شحن وفواتير</div>
-            <div class="font-mono font-bold text-white text-base" id="st-tel">0.00</div>
-          </div>
-          <div class="panel rounded-2xl p-4">
-            <div class="w-8 h-8 rounded-full bg-purple-900/30 flex items-center justify-center mb-6"><i class="fa-solid fa-globe text-xs text-purple-400"></i></div>
-            <div class="text-[10px] text-gray-500 font-bold mb-1">مدفوعات أونلاين</div>
-            <div class="font-mono font-bold text-white text-base" id="st-onl">0.00</div>
-          </div>
-          <div class="col-span-2 panel rounded-2xl p-4 flex items-center justify-between" style="background:linear-gradient(135deg,rgba(230,0,0,.08),transparent)">
+    <div class="w-full max-w-md mx-auto relative mt-6 px-4">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 animate-slide-up" style="animation-delay: 0.1s;">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(230,0,0,.15)"><i class="fa-solid fa-percent text-voda-red text-sm"></i></div>
-              <div>
-                <div class="text-xs font-black text-white">رسوم الخدمة</div>
-                <div class="text-[9px] text-gray-500 mt-0.5">تحويل · سحب · VCN</div>
-              </div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-wallet text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold leading-tight text-white/95">محفظتي</h1>
+                    <p class="text-[11px] text-indigo-300 tracking-widest font-numbers">SMART WALLET</p>
+                </div>
             </div>
-            <div class="font-mono font-black text-voda-red text-lg" id="st-fee">0.00</div>
-          </div>
+            <div class="flex gap-2">
+                <button onclick="haptic(); exportData()" title="تصدير بيانات" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-90"><i class="fa-solid fa-cloud-arrow-down text-indigo-300"></i></button>
+                <button onclick="haptic(); document.getElementById('importFile').click()" title="استيراد بيانات" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-white/10 transition active:scale-90"><i class="fa-solid fa-cloud-arrow-up text-fuchsia-300"></i></button>
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+            </div>
+        </header>
+
+        <!-- Main Card -->
+        <div class="credit-card rounded-[2rem] p-6 mb-8 text-white animate-slide-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div class="w-full max-w-[75%]">
+                    <p class="text-white/80 text-sm font-semibold mb-1">الرصيد المتاح</p>
+                    <h2 class="text-4xl font-bold font-numbers tracking-tight drop-shadow-md truncate" id="totalBalance">0.00</h2>
+                </div>
+                <i class="fa-brands fa-nfc-symbol text-3xl text-white/40 drop-shadow-lg"></i>
+            </div>
+            <div class="flex justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
+                <div>
+                    <p class="text-white/80 text-[12px] mb-1 flex items-center gap-1"><i class="fa-solid fa-circle-arrow-down text-emerald-300"></i> إجمالي الدخل</p>
+                    <p class="text-lg font-bold font-numbers truncate max-w-[120px]" id="totalIncome">0.00</p>
+                </div>
+                <div class="text-left">
+                    <p class="text-white/80 text-[12px] mb-1 flex items-center gap-1 justify-end">المصروفات <i class="fa-solid fa-circle-arrow-up text-rose-300"></i></p>
+                    <p class="text-lg font-bold font-numbers truncate max-w-[120px]" id="totalExpense">0.00</p>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Lists Area -->
+        <div class="animate-slide-up" style="animation-delay: 0.3s;">
+            <div class="flex justify-between items-center mb-5 px-1">
+                <h3 id="listTitle" class="text-lg font-bold text-white/90">آخر المعاملات</h3>
+                <span id="listCount" class="text-xs font-bold font-numbers text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">0</span>
+            </div>
+            <div id="transactionsList" class="space-y-3 pb-8"></div>
+            <div id="debtsList" class="space-y-3 pb-8 hidden"></div>
+        </div>
     </div>
 
-    <!-- TAB: TRANSACTIONS -->
-    <div id="v-transactions" class="hidden flex-1 flex flex-col anim-fade">
-      <div class="mb-4 shrink-0">
-        <h2 class="text-2xl font-black mb-0.5">سجل العمليات</h2>
-        <p class="text-xs text-gray-500">كل قرش وارد وصادر موثق هنا</p>
-      </div>
-      <!-- Search -->
-      <div class="relative mb-3 shrink-0">
-        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-        <input id="tx-search" oninput="filterTxSearch()" type="text" placeholder="ابحث برقم أو نوع العملية..." class="w-full panel py-3 pr-11 pl-4 rounded-2xl text-sm text-white placeholder-gray-600 outline-none focus:border-white/20 transition">
-      </div>
-      <!-- Filters -->
-      <div class="flex flex-col gap-2 mb-3 shrink-0">
-        <div class="flex gap-2 overflow-x-auto hide-scroll pb-1">
-          <button onclick="setMainFilter('all')"  id="mf-all"  class="chip-btn on">الكل</button>
-          <button onclick="setMainFilter('in')"   id="mf-in"   class="chip-btn off">وارد <i class="fa-solid fa-arrow-down text-emerald-400 text-[9px] mr-1"></i></button>
-          <button onclick="setMainFilter('out')"  id="mf-out"  class="chip-btn off">صادر <i class="fa-solid fa-arrow-up text-voda-red text-[9px] mr-1"></i></button>
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 w-full glass-panel bg-slate-900/95 border-t border-white/5 pb-safe pt-2 px-8 flex justify-between items-center z-40 rounded-t-3xl">
+        <button onclick="haptic(); switchTab('transactions')" id="nav-tx" class="flex flex-col items-center gap-1.5 text-indigo-400 w-16 transition-colors mb-2 relative">
+            <div id="nav-tx-indicator" class="absolute -top-3 w-8 h-1 bg-indigo-500 rounded-b-full transition-opacity"></div>
+            <i class="fa-solid fa-money-bill-transfer text-xl mt-1"></i>
+            <span class="text-[10px] font-bold">السجل</span>
+        </button>
+
+        <div class="relative -top-6" id="fabContainer">
+            <button onclick="haptic(); toggleActionMenu(event)" class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] text-white text-2xl hover:scale-105 active:scale-90 transition-all duration-300 border-4 border-[#020617]">
+                <i class="fa-solid fa-plus transition-transform duration-300" id="plusIcon"></i>
+            </button>
+
+            <!-- FAB Menu -->
+            <div id="actionMenu" class="absolute bottom-20 left-1/2 -translate-x-1/2 flex-col gap-3 hidden scale-95 opacity-0 transition-all duration-200 origin-bottom">
+                <button onclick="haptic(); openModal('transactionModal')" class="glass-panel bg-slate-800 w-48 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-slate-700 active:scale-95 shadow-xl border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-arrow-right-arrow-left text-emerald-400"></i></div>
+                    إضافة معاملة
+                </button>
+                <button onclick="haptic(); openModal('debtModal')" class="glass-panel bg-slate-800 w-48 py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-3 hover:bg-slate-700 active:scale-95 shadow-xl border border-white/5">
+                    <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center"><i class="fa-solid fa-handshake text-orange-400"></i></div>
+                    تسجيل دين
+                </button>
+            </div>
         </div>
-        <div id="sf-row" class="hidden flex gap-2 overflow-x-auto hide-scroll pb-1">
-          <!-- populated by JS -->
-        </div>
-      </div>
-      <div id="tx-list" class="flex-1 overflow-y-auto hide-scroll space-y-2.5 pb-safe"></div>
+
+        <button onclick="haptic(); switchTab('debts')" id="nav-debts" class="flex flex-col items-center gap-1.5 text-gray-500 hover:text-indigo-300 w-16 transition-colors mb-2 relative">
+            <div id="nav-debts-indicator" class="absolute -top-3 w-8 h-1 bg-indigo-500 rounded-b-full opacity-0 transition-opacity"></div>
+            <i class="fa-solid fa-users-rectangle text-xl mt-1"></i>
+            <span class="text-[10px] font-bold">الديون</span>
+        </button>
     </div>
 
-    <!-- TAB: PEOPLE -->
-    <div id="v-people" class="hidden flex-1 flex flex-col anim-fade">
-      <div class="flex items-end justify-between mb-4 shrink-0">
-        <div>
-          <h2 class="text-2xl font-black mb-0.5">الأشخاص</h2>
-          <p class="text-xs text-gray-500">صافي الحسابات مع جهات الاتصال</p>
+    <!-- Transaction Modal -->
+    <div id="transactionModal" onclick="closeModal('transactionModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet max-h-[90vh] overflow-y-auto hide-scrollbar border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.7)]">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">معاملة جديدة</h3>
+                <button type="button" onclick="haptic(); closeModal('transactionModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="txForm" onsubmit="addTransaction(event)">
+                <div class="flex bg-slate-800 rounded-2xl p-1.5 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="expense" checked class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-rose-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-rose-500/30">مصروف</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="txType" value="income" class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-emerald-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-emerald-500/30">دخل</div>
+                    </label>
+                </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <input type="date" id="txDate" required class="flex-1 bg-slate-800 border border-white/5 py-3.5 px-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all text-sm">
+                </div>
+
+                <input type="number" id="txAmount" inputmode="decimal" placeholder="المبلغ (مثال: 150.50)" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-numbers text-xl rounded-2xl transition-all" step="any" min="0.01">
+                <input type="text" id="txCategory" placeholder="التصنيف (مثال: طعام، مواصلات، راتب...)" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-8 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all text-sm">
+                
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-95">حفظ المعاملة</button>
+            </form>
         </div>
-        <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-sm font-mono font-black text-black shadow-[0_0_20px_rgba(255,255,255,.15)]" id="ppl-count">0</div>
-      </div>
-      <div class="relative mb-4 shrink-0">
-        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-        <input id="ppl-search" oninput="filterPeople()" type="text" placeholder="ابحث بالاسم أو الرقم..." class="w-full panel py-3 pr-11 pl-4 rounded-2xl text-sm text-white placeholder-gray-600 outline-none focus:border-white/20 transition">
-      </div>
-      <div id="ppl-list" class="flex-1 overflow-y-auto hide-scroll space-y-2.5 pb-safe"></div>
     </div>
 
-    <!-- TAB: ANALYTICS -->
-    <div id="v-analytics" class="hidden flex-1 overflow-y-auto hide-scroll anim-fade pb-safe">
-      <div class="mb-5">
-        <h2 class="text-2xl font-black mb-0.5">التحليلات</h2>
-        <p class="text-xs text-gray-500">نظرة عميقة على عاداتك المالية</p>
-      </div>
+    <!-- Debt Modal -->
+    <div id="debtModal" onclick="closeModal('debtModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet max-h-[90vh] overflow-y-auto hide-scrollbar border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.7)]">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">تسجيل دين</h3>
+                <button type="button" onclick="haptic(); closeModal('debtModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="debtForm" onsubmit="addDebt(event)">
+                <div class="flex bg-slate-800 rounded-2xl p-1.5 mb-5 border border-white/5">
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="lent" checked class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-blue-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-xs sm:text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-blue-500/30">أقرضته (لي عنده)</div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer relative">
+                        <input type="radio" name="debtType" value="borrowed" class="peer hidden" onchange="haptic()">
+                        <div class="peer-checked:bg-orange-500 peer-checked:text-white rounded-xl py-2.5 font-bold text-gray-400 text-xs sm:text-sm transition-all duration-300 peer-checked:shadow-lg peer-checked:shadow-orange-500/30">استلفت منه (عليّ له)</div>
+                    </label>
+                </div>
 
-      <!-- Monthly Chart -->
-      <div class="panel rounded-2xl p-5 mb-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-black">النشاط الشهري</h3>
-          <div class="flex items-center gap-3 text-[10px] font-bold text-gray-500">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span>وارد</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-voda-red"></span>صادر</span>
-          </div>
+                <input type="date" id="debtDate" required class="w-full bg-slate-800 border border-white/5 py-3.5 px-4 mb-4 outline-none rounded-2xl text-sm focus:border-indigo-500">
+
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-user absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="debtPerson" list="peopleNamesList" placeholder="اسم الشخص" required autocomplete="off" class="w-full bg-slate-800 border border-white/5 py-4 pr-12 pl-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl transition-all">
+                </div>
+
+                <input type="number" id="debtAmount" inputmode="decimal" placeholder="المبلغ الكلي 0.00" required class="w-full bg-slate-800 border border-white/5 py-4 px-4 mb-4 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-numbers text-xl rounded-2xl transition-all" step="any" min="0.01">
+
+                <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-2xl mb-8 border border-white/5">
+                    <div>
+                        <p class="font-bold text-sm text-white">تحديث رصيد المحفظة؟</p>
+                        <p class="text-[10px] text-gray-400 mt-1">سيتم الخصم/الإضافة من رصيدك الحالي</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer" onchange="haptic()">
+                        <input type="checkbox" id="affectWalletToggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-600 rounded-full peer rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-95">حفظ الدين</button>
+            </form>
         </div>
-        <div id="monthly-chart" class="h-36 flex items-end gap-1.5 justify-around overflow-x-auto hide-scroll"></div>
-      </div>
-
-      <!-- Category Breakdown -->
-      <div class="panel rounded-2xl p-5 mb-4">
-        <h3 class="text-sm font-black mb-4">توزيع الإنفاق</h3>
-        <div id="cat-breakdown" class="space-y-3.5"></div>
-      </div>
-
-      <!-- Key Metrics -->
-      <div class="panel rounded-2xl p-5 mb-4">
-        <h3 class="text-sm font-black mb-4">أرقام مهمة</h3>
-        <div id="key-metrics" class="space-y-3"></div>
-      </div>
-
-      <!-- Top Contacts -->
-      <div class="panel rounded-2xl p-5">
-        <h3 class="text-sm font-black mb-4">أكثر جهات التعامل نشاطاً</h3>
-        <div id="top-contacts" class="space-y-3"></div>
-      </div>
     </div>
 
-  </div><!-- /dash -->
-</div><!-- /shell -->
+    <!-- Repayment Modal -->
+    <div id="repaymentModal" onclick="closeModal('repaymentModal')" class="fixed inset-0 bg-black/70 backdrop-blur-sm modal-overlay flex flex-col justify-end z-50 hidden">
+        <div onclick="event.stopPropagation()" class="glass-panel bg-slate-900 w-full max-w-md mx-auto p-6 rounded-t-[2.5rem] modal-sheet shadow-[0_-10px_40px_rgba(0,0,0,0.7)] border-t border-white/10">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-emerald-400">تسديد دفعة</h3>
+                    <p id="repaymentPersonName" class="text-xs text-gray-400 mt-1">لصالح...</p>
+                </div>
+                <button type="button" onclick="haptic(); closeModal('repaymentModal')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="repayForm" onsubmit="addRepayment(event)">
+                <input type="hidden" id="repayDebtId">
+                <input type="date" id="repayDate" required class="w-full bg-slate-800 border border-white/5 py-3.5 px-4 mb-4 outline-none rounded-2xl text-sm focus:border-emerald-500">
 
-<!-- Bottom Nav -->
-<div id="nav-wrapper" class="fixed bottom-0 left-0 right-0 z-40 hidden pb-safe flex justify-center" style="padding-bottom:max(16px,env(safe-area-inset-bottom))">
-  <nav class="nav-dock flex w-full max-w-[340px] mx-4 shadow-[0_8px_32px_rgba(0,0,0,.8)]">
-    <button class="nav-btn active" id="nb-home"        onclick="goTab('home')">        <i class="fa-solid fa-wallet text-xl"></i><div class="nav-dot"></div></button>
-    <button class="nav-btn"        id="nb-transactions" onclick="goTab('transactions')"><i class="fa-solid fa-list-ul text-xl"></i><div class="nav-dot"></div></button>
-    <button class="nav-btn"        id="nb-people"       onclick="goTab('people')">      <i class="fa-solid fa-user-group text-xl"></i><div class="nav-dot"></div></button>
-    <button class="nav-btn"        id="nb-analytics"    onclick="goTab('analytics')">   <i class="fa-solid fa-chart-pie text-xl"></i><div class="nav-dot"></div></button>
-  </nav>
-</div>
+                <div class="relative mb-4 bg-slate-800 rounded-2xl p-4 border border-white/5">
+                    <div class="flex justify-between text-xs text-gray-400 mb-2">
+                        <span>المبلغ المسدد</span>
+                        <span>المتبقي: <span id="repayMaxAmount" class="font-bold font-numbers text-white"></span></span>
+                    </div>
+                    <input type="number" id="repayAmount" inputmode="decimal" placeholder="0.00" required class="w-full bg-transparent outline-none font-numbers text-3xl text-emerald-400" step="any" min="0.01">
+                </div>
 
-<!-- Person Modal -->
-<div id="pModal" class="fixed inset-0 z-[80] modal-overlay hidden flex flex-col justify-end" onclick="closeModal()">
-  <div class="modal-sheet w-full max-w-md mx-auto panel rounded-t-[2rem] flex flex-col border-t border-white/8 shadow-[0_-12px_50px_rgba(0,0,0,.6)]" style="height:82vh" onclick="event.stopPropagation()">
-    <div class="w-10 h-1 rounded-full bg-white/15 mx-auto mt-4 mb-5 shrink-0"></div>
-    <div class="px-6 shrink-0">
-      <div class="flex items-start justify-between mb-5">
-        <div class="flex items-center gap-4 flex-1 min-w-0">
-          <div class="w-13 h-13 rounded-full glass flex items-center justify-center text-white text-lg shrink-0" style="width:52px;height:52px">
-            <i class="fa-solid fa-user"></i>
-          </div>
-          <div class="min-w-0">
-            <h3 class="text-lg font-black text-white truncate" id="m-name">—</h3>
-            <p class="text-sm font-mono text-gray-400 mt-0.5" id="m-phone">—</p>
-          </div>
+                <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-2xl mb-8 border border-white/5">
+                    <div>
+                        <p class="font-bold text-sm">إيداع/خصم من المحفظة؟</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer" onchange="haptic()">
+                        <input type="checkbox" id="repayAffectWallet" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-600 rounded-full peer rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-500/30 transition-all active:scale-95">تأكيد السداد</button>
+            </form>
         </div>
-        <button onclick="closeModal()" class="w-8 h-8 rounded-full glass flex items-center justify-center text-gray-400 shrink-0 ml-3 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <!-- Net summary -->
-      <div class="rounded-2xl p-4 mb-5 flex items-center justify-between relative overflow-hidden" style="background:#0a0a0a;border:1px solid var(--border)">
-        <div class="absolute right-0 top-0 w-1 h-full rounded-r-full" id="m-bar" style="background:var(--red)"></div>
-        <div>
-          <div class="text-[10px] text-gray-500 font-bold mb-1" id="m-label">الصافي</div>
-          <div class="font-mono font-black text-2xl text-white" id="m-net" dir="ltr">0.00</div>
-        </div>
-        <div class="text-right space-y-1.5">
-          <div class="text-[10px] font-bold text-emerald-400 flex justify-between gap-4 bg-emerald-500/8 px-3 py-1.5 rounded-lg"><span>وارد:</span><span class="font-mono" id="m-totIn">0</span></div>
-          <div class="text-[10px] font-bold text-white   flex justify-between gap-4 bg-white/5      px-3 py-1.5 rounded-lg"><span>صادر:</span><span class="font-mono" id="m-totOut">0</span></div>
-        </div>
-      </div>
-      <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">سجل العمليات</div>
     </div>
-    <div id="m-txlist" class="flex-1 overflow-y-auto hide-scroll px-6 space-y-2.5 pb-6"></div>
-  </div>
-</div>
 
-<script>
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let D = resetData();
-let peopleArr = [];
-let mainFilter = 'all', subFilter = 'all';
-let allTxFiltered = [];
-
-function resetData() {
-  return {
-    balance: 0, inflow: 0, outflow: 0,
-    atm: 0, dep: 0, tel: 0, onl: 0, fees: 0,
-    parsed: 0, wallet: null,
-    people: {}, txns: [],
-    balHist: [],       // [{t,b}] balance over time
-    monthly: {},       // {'YYYY-MM': {in,out}}
-  };
+    <script>
+        // --- START OF PWA SERVICE WORKER REGISTRATION ---
+// تسجيل الـ Service Worker مع التأكد من التحديث الفوري
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('SW Registered');
+            
+            // التحقق من وجود تحديثات للتطبيق
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showToast('تحديث جديد متاح! أعد تحميل الصفحة', 'success');
+                    }
+                };
+            };
+        });
+    });
 }
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const fmt = n => parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const clean = s => s ? parseFloat(String(s).replace(/,/g,'')) : 0;
-
-function toast(msg, ok=true) {
-  const t=$('toast'); $('toast-ico').className=ok?'fa-solid fa-check-circle text-emerald-400 text-base':'fa-solid fa-triangle-exclamation text-voda-red text-base';
-  $('toast-msg').textContent=msg;
-  t.style.transform='translateX(-50%) translateY(0)'; t.style.opacity='1';
-  setTimeout(()=>{ t.style.transform='translateX(-50%) translateY(-80px)'; t.style.opacity='0'; },3200);
-}
-
-function setStatus(txt, ok) {
-  $('s-dot').style.background = ok ? '#10b981' : '#E60000';
-  $('s-dot').style.boxShadow = ok ? '0 0 8px #10b981' : '0 0 8px #E60000';
-  $('s-txt').textContent = txt;
-}
-
-function animNum(el, to, ms=1000, money=false) {
-  let start=null, from=0;
-  const step = ts => {
-    if (!start) start=ts;
-    const p = Math.min((ts-start)/ms,1);
-    const ease = 1-Math.pow(1-p,3);
-    const v = from + ease*(to-from);
-    if (money) {
-      const parts=fmt(v).split('.');
-      el.innerHTML=`${parts[0]}<span style="opacity:.55;font-size:.7em">.${parts[1]}</span>`;
-    } else { el.textContent=fmt(v); }
-    if (p<1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-// ─── UPLOAD / DRAG & DROP ────────────────────────────────────────────────────
-function triggerUpload() { $('fileIn').click(); }
-function dragOver(e) { e.preventDefault(); $('dropZone').classList.add('dragging'); }
-function dragLeave()  { $('dropZone').classList.remove('dragging'); }
-function dropFile(e)  { e.preventDefault(); dragLeave(); const f=e.dataTransfer.files[0]; if(f) readFile(f); }
-function handleFile(e){ const f=e.target.files[0]; if(f) readFile(f); e.target.value=''; }
-
-function readFile(file) {
-  const loading=$('loading'); loading.classList.remove('hidden'); loading.classList.add('flex');
-  const r=new FileReader();
-  r.onload = ev => setTimeout(()=>{ parse(ev.target.result); loading.classList.add('hidden'); loading.classList.remove('flex'); }, 700);
-  r.readAsText(file);
-}
-
-// ─── DATE PARSING ────────────────────────────────────────────────────────────
-function parseDate(msg) {
-  let m;
-  // SMS Exporter header: "on YYYY-MM-DD HH:MM"
-  m = msg.match(/\bon\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/i);
-  if (m) { const d=new Date(`${m[1]}T${m[2]}:00`); if(!isNaN(d)) return {str:`${m[1]} ${m[2]}`,obj:d}; }
-
-  // English full date: "Apr 16, 2026 2:34:07 PM"
-  m = msg.match(/([A-Za-z]+ \d{1,2},?\s*\d{4}\s+\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M)/i);
-  if (m) { const d=new Date(m[1]); if(!isNaN(d)) return {str:d.toLocaleDateString('ar-EG'),obj:d}; }
-
-  // Arabic time-first: "HH:MM YY-MM-DD" (e.g. "15:54 26-04-10")
-  m = msg.match(/تاريخ العملية[:\s]+(\d{2}:\d{2})\s+(\d{2})-(\d{2})-(\d{2})/i);
-  if (m) { const [,time,yy,mm,dd]=m; const d=new Date(`20${yy}-${mm}-${dd}T${time}:00`); if(!isNaN(d)) return {str:`20${yy}-${mm}-${dd} ${time}`,obj:d}; }
-
-  // Arabic date-first: "DD-MM-YY HH:MM" (e.g. "18-04-26 11:50")
-  m = msg.match(/تاريخ العملية[\s\u200e\u200f:]*(\d{2})-(\d{2})-(\d{2})\s+(\d{2}:\d{2})/i);
-  if (m) { const [,dd,mm,yy,time]=m; const d=new Date(`20${yy}-${mm}-${dd}T${time}:00`); if(!isNaN(d)) return {str:`20${yy}-${mm}-${dd} ${time}`,obj:d}; }
-
-  // Trx date: "DD-MM-YY HH:MM"
-  m = msg.match(/[Tt]rx\s*date[:\s]*(\d{2})-(\d{2})-(\d{2})\s+(\d{2}:\d{2})/i);
-  if (m) { const [,dd,mm,yy,time]=m; const d=new Date(`20${yy}-${mm}-${dd}T${time}:00`); if(!isNaN(d)) return {str:`20${yy}-${mm}-${dd} ${time}`,obj:d}; }
-
-  // Date only: "DD-MM-YY" with no time
-  m = msg.match(/تاريخ العملية[\s\u200e\u200f:]*(\d{2})-(\d{2})-(\d{2})(?!\s*\d)/i);
-  if (m) { const [,dd,mm,yy]=m; const d=new Date(`20${yy}-${mm}-${dd}T00:00:00`); if(!isNaN(d)) return {str:`20${yy}-${mm}-${dd}`,obj:d}; }
-
-  return null;
-}
-
-function fmtDate(str) {
-  if (!str || str==='—') return '—';
-  const d = new Date(str.replace(/-/g,'/').replace(' ','T'));
-  if (isNaN(d)) return str;
-  const day = d.getDate().toString().padStart(2,'0');
-  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  const hr = d.getHours().toString().padStart(2,'0');
-  const mn = d.getMinutes().toString().padStart(2,'0');
-  return `${day} ${months[d.getMonth()]} · ${hr}:${mn}`;
-}
-
-// ─── MAIN PARSER ─────────────────────────────────────────────────────────────
-function parse(raw) {
-  if (!raw.trim()) { toast('الملف فارغ أو غير صحيح', false); return; }
-  D = resetData();
-
-  const text = raw.replace(/[\u200E\u200F\u202A-\u202E\u200B-\u200D\uFEFF]/g,'');
-  // Split on dashes separator, equals separator, or double newline
-  const blocks = text.split(/={10,}|-{20,}|\n{2,}|\r\n{2,}/);
-
-  let fallback = new Date();
-  let firstDate = null, lastDate = null;
-
-  blocks.forEach(raw => {
-    const msg = raw.trim();
-    if (msg.length < 12) return;
-
-    // Skip OTP/error/promo blocks
-    if (/الرقم السري المتغير|لا يمكن إتمام|غير صحيح|كاش باك|اشتري باقة|تستمتع ب|ليك \d+ جنيه/i.test(msg)
-      && !/تم (تحويل|استلام|شحن|سحب|دفع|إيداع)/i.test(msg)) return;
-
-    // Detect wallet number
-    const wm = msg.match(/(?:على رقم محفظتك|Mobile Account Number)\s+(\d{8,})/i);
-    if (wm && !D.wallet) D.wallet = wm[1];
-
-    // Parse date
-    const dt = parseDate(msg);
-    let dateObj = dt ? dt.obj : new Date(fallback);
-    let dateStr = dt ? dt.str : '—';
-    if (dt && !isNaN(dt.obj)) { fallback = dt.obj; if(!firstDate||dt.obj<firstDate) firstDate=dt.obj; if(!lastDate||dt.obj>lastDate) lastDate=dt.obj; }
-
-    // Parse balance snapshot
-    const bm = msg.match(/(?:رصيد(?:ك الحالي|حسابك[^:]*الحالي|ك الحالي|محفظتك الحالي)[:\s]*|(?:Vodafone Cash balance is|Available Balance:)\s*)(?:EGP\s*)?([\d\.,]+)/i);
-    if (bm) {
-      const b = clean(bm[1]);
-      D.balance = b;
-      if (!isNaN(dateObj)) D.balHist.push({t:dateObj,b});
+// معالجة الـ Shortcuts (الروابط المختصرة من أيقونة التطبيق)
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new-tx') {
+        setTimeout(() => openModal('transactionModal'), 500);
     }
-
-    // Month key
-    const mk = !isNaN(dateObj) ? dateObj.toISOString().slice(0,7) : null;
-    if (mk && !D.monthly[mk]) D.monthly[mk]={in:0,out:0};
-
-    let processed = false;
-
-    // 1. P2P IN Arabic
-    const p2pInAr = msg.match(/استلام مبلغ\s*([\d\.,]+)\s*جني[هة]?[\s\S]*?من رقم\s*(\d+)/i);
-    const p2pInEn = msg.match(/Received EGP\s*([\d\.,]+)\s*from\s*(002\d+|0\d{9,}|\d{9,})/i);
-    if (!processed && (p2pInAr||p2pInEn)) {
-      const amt=clean(p2pInAr?p2pInAr[1]:p2pInEn[1]);
-      let phone=(p2pInAr?p2pInAr[2]:p2pInEn[2]).replace(/^002/,'');
-      const nm=msg.match(/المسجل بإسم\s*([^\u061B\r\n؛]+?)(?:؛|رصيد|على رقم|$)/i);
-      const name=nm?nm[1].trim():null;
-      addPerson(phone,name,'in',amt,dateObj,dateStr,'استلام تحويل');
-      D.inflow+=amt; addTx('transfer_in','in',amt,dateObj,dateStr,`استلام من ${name||phone}`,phone); if(mk)D.monthly[mk].in+=amt;
-      processed=true;
+    if (urlParams.get('tab') === 'debts') {
+        setTimeout(() => switchTab('debts'), 500);
     }
+});
+        // --- END OF PWA SERVICE WORKER REGISTRATION ---
+        let appData = { transactions: [], debts: [] };
 
-    // 2. P2P OUT Arabic
-    const p2pOutAr = msg.match(/تم تحويل\s*([\d\.,]+)\s*جني[هة]?\s*لرقم\s*(\d+)[\s\S]*?مصاريف الخدمة\s*([\d\.,]+)/i);
-    const p2pOutEn = msg.match(/EGP\s*([\d\.,]+)\s*were successfully transferred to\s*(\d+)[\s\S]*?fee is\s*EGP\s*([\d\.,]+)/i);
-    if (!processed && (p2pOutAr||p2pOutEn)) {
-      const amt=clean(p2pOutAr?p2pOutAr[1]:p2pOutEn[1]);
-      const phone=p2pOutAr?p2pOutAr[2]:p2pOutEn[2];
-      const fee=clean(p2pOutAr?p2pOutAr[3]:p2pOutEn[3]);
-      addPerson(phone,null,'out',amt,dateObj,dateStr,'إرسال تحويل');
-      D.outflow+=amt; D.fees+=fee; addTx('transfer_out','out',amt,dateObj,dateStr,`تحويل إلى حساب`,phone); if(mk)D.monthly[mk].out+=amt;
-      processed=true;
-    }
+        // UX: Haptic Feedback helper
+        const haptic = (ms = 40) => { if (navigator.vibrate) navigator.vibrate(ms); };
 
-    // 3. ONLINE / FAWRY
-    const onlinePay = msg.match(/تم دفع(?: مبلغ)?\s*([\d\.,]+)\s*جني[هة]?\s*(?:لـ|ل)(.+?)(?:\.|رصيد|تاريخ)/i);
-    if (!processed && onlinePay) {
-      const amt=clean(onlinePay[1]), merch=onlinePay[2].trim().substring(0,30);
-      D.outflow+=amt; D.onl+=amt; addTx('online','out',amt,dateObj,dateStr,`دفع: ${merch}`,merch); if(mk)D.monthly[mk].out+=amt;
-      processed=true;
-    }
-    // VCN fee
-    const vcn=msg.match(/إصدار كارت[\s\S]*?خصم\s*([\d\.,]+)/i); if(vcn) D.fees+=clean(vcn[1]);
+        const setTodayDefault = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('txDate').value = today;
+            document.getElementById('debtDate').value = today;
+            document.getElementById('repayDate').value = today;
+        };
 
-    // 4. SELF RECHARGE
-    const srAr=msg.match(/شحن رصيد موبايلك ب\s*([\d\.,]+)/i);
-    const srEn=msg.match(/([\d\.,]+)\s*(?:L\.E|EGP)\s*was successfully recharged to your mobile/i);
-    if (!processed && (srAr||srEn)) {
-      const amt=clean(srAr?srAr[1]:srEn[1]);
-      D.outflow+=amt; D.tel+=amt; addTx('telecom','out',amt,dateObj,dateStr,'شحن خطك','فودافون'); if(mk)D.monthly[mk].out+=amt;
-      processed=true;
-    }
+        const formatMoney = (num) => {
+            if (isNaN(num) || num === null) return "0.00";
+            return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
 
-    // 5. RECHARGE OTHERS
-    const rechO=msg.match(/شحن رصيد ب\s*([\d\.,]+)\s*ج\s*بنجاح إلى رقم\s*(\d+)[\s\S]*?وخصم\s*([\d\.,]+)/i);
-    if (!processed && rechO) {
-      const deducted=clean(rechO[3]), phone=rechO[2];
-      addPerson(phone,null,'out',deducted,dateObj,dateStr,'شحن رصيد للغير');
-      D.outflow+=deducted; D.tel+=deducted; addTx('telecom','out',deducted,dateObj,dateStr,'شحن رقم آخر',phone); if(mk)D.monthly[mk].out+=deducted;
-      processed=true;
-    }
+        // UX: Smart Date Formatting (Today, Yesterday)
+        const formatSmartDate = (dateStr) => {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
 
-    // 6. RECEIVED RECHARGE
-    const rechI=msg.match(/رقم\s*(\d+)\s*شحنلك ب\s*([\d\.,]+)/i);
-    if (!processed && rechI) {
-      const amt=clean(rechI[2]), phone=rechI[1];
-      addPerson(phone,null,'in',amt,dateObj,dateStr,'استلام شحن');
-      D.inflow+=amt; addTx('telecom','in',amt,dateObj,dateStr,'شحن وارد',phone); if(mk)D.monthly[mk].in+=amt;
-      processed=true;
-    }
+            if (date.toDateString() === today.toDateString()) return 'اليوم';
+            if (date.toDateString() === yesterday.toDateString()) return 'أمس';
+            
+            return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
 
-    // 7. ATM WITHDRAWAL
-    const atm=msg.match(/تم سحب(?: مبلغ)?\s*([\d\.,]+)\s*جني[هة]/i);
-    if (!processed && atm) {
-      const amt=clean(atm[1]);
-      D.outflow+=amt; D.atm+=amt; addTx('withdrawal','out',amt,dateObj,dateStr,'سحب نقدي (ATM)','من المحفظة'); if(mk)D.monthly[mk].out+=amt;
-      processed=true;
-    }
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast'), i = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            i.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400 text-lg' : 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
+            t.classList.remove('-translate-y-24', 'opacity-0');
+            if (type === 'error') haptic([50, 50, 50]); // Error haptic pattern
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 3000);
+        }
 
-    // 8. DEPOSIT
-    const dep=msg.match(/تم إيداع\s*([\d\.,]+)\s*جني[هة]/i);
-    if (!processed && dep) {
-      const amt=clean(dep[1]);
-      D.inflow+=amt; D.dep+=amt; addTx('deposit','in',amt,dateObj,dateStr,amt<=10?'مكافأة / كاش باك':'إيداع نقدي','إضافة للرصيد'); if(mk)D.monthly[mk].in+=amt;
-      processed=true;
-    }
+        function init() {
+            const savedData = localStorage.getItem('smartWalletV4');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    if (parsed && parsed.transactions && parsed.debts) {
+                        appData = parsed;
+                        appData.debts.forEach(d => {
+                            if (d.remaining === undefined) d.remaining = d.isPaid ? 0 : d.amount;
+                            if (!d.history) d.history = [];
+                        });
+                    }
+                } catch (e) { console.error("Error parsing data, starting fresh."); }
+            }
+            setTodayDefault();
+            updateUI();
+        }
 
-    if (processed) D.parsed++;
-  });
+        function updateUI() {
+            appData.transactions.sort((a, b) => new Date(b.dateStr) - new Date(a.dateStr));
+            appData.debts.sort((a, b) => {
+                if (a.remaining > 0 && b.remaining <= 0) return -1;
+                if (a.remaining <= 0 && b.remaining > 0) return 1;
+                return new Date(b.dateStr) - new Date(a.dateStr);
+            });
 
-  if (D.parsed === 0) { toast('لم يُعثر على عمليات قابلة للتحليل', false); setStatus('فشل المعالجة',false); return; }
+            updatePeopleDatalist();
+            renderTransactions();
+            renderDebts();
+            calculateDashboard();
+            localStorage.setItem('smartWalletV4', JSON.stringify(appData));
+        }
 
-  D.txns.sort((a,b)=>b.dateObj-a.dateObj);
-  D.balHist.sort((a,b)=>a.t-b.t);
-  peopleArr = Object.values(D.people).sort((a,b)=>(b.totalIn+b.totalOut)-(a.totalIn+a.totalOut));
+        function updatePeopleDatalist() {
+            const list = document.getElementById('peopleNamesList');
+            const uniquePeople = [...new Set(appData.debts.map(d => d.person))];
+            list.innerHTML = uniquePeople.map(p => `<option value="${p}">`).join('');
+        }
 
-  // Card period display
-  if (firstDate && lastDate) {
-    const f=firstDate,l=lastDate;
-    const pad=n=>String(n).padStart(2,'0');
-    $('c-period').textContent=`${pad(f.getMonth()+1)}/${String(f.getFullYear()).slice(2)} — ${pad(l.getMonth()+1)}/${String(l.getFullYear()).slice(2)}`;
-  }
+        function calculateDashboard() {
+            let income = 0, expense = 0;
+            appData.transactions.forEach(tx => {
+                if (tx.type === 'income') income += tx.amount;
+                if (tx.type === 'expense') expense += tx.amount;
+            });
+            document.getElementById('totalBalance').innerHTML = `${formatMoney(income - expense)} <span class="text-xl opacity-60 font-sans font-normal text-white/60">ج.م</span>`;
+            document.getElementById('totalIncome').innerText = formatMoney(income);
+            document.getElementById('totalExpense').innerText = formatMoney(expense);
+        }
 
-  buildUI(firstDate, lastDate);
-  toast(`تم تحليل ${D.parsed} عملية بنجاح`);
-}
+        function renderTransactions() {
+            const list = document.getElementById('transactionsList');
+            if (appData.transactions.length === 0) {
+                list.innerHTML = `
+                <div class="text-center py-12 px-4 glass-panel rounded-[2rem] border-dashed border-2 border-white/10">
+                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-4 shadow-inner"><i class="fa-solid fa-receipt text-2xl text-gray-500"></i></div>
+                    <p class="text-gray-300 font-bold">لا توجد معاملات بعد</p>
+                    <p class="text-xs text-gray-500 mt-2">اضغط على الزر (+) للبدء بإضافة معاملاتك</p>
+                </div>`;
+                document.getElementById('listCount').innerText = '0';
+                return;
+            }
+            document.getElementById('listCount').innerText = appData.transactions.length;
+            list.innerHTML = appData.transactions.map((tx, i) => {
+                const isInc = tx.type === 'income';
+                const col = isInc ? 'emerald' : 'rose';
+                const sign = isInc ? '+' : '-';
+                return `
+                <div class="bg-slate-800/50 p-4 rounded-2xl flex justify-between items-center relative overflow-hidden animate-slide-up border border-white/5 hover:bg-slate-800 transition-colors" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <div class="flex items-center gap-4 w-[65%]">
+                        <div class="w-12 h-12 shrink-0 rounded-xl bg-${col}-500/10 border border-${col}-500/20 flex items-center justify-center text-${col}-400 shadow-inner">
+                            <i class="fa-solid ${isInc ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="font-bold text-sm truncate text-white/95">${tx.category}</p>
+                            <p class="text-[11px] text-gray-400 mt-1 flex items-center gap-1"><i class="fa-regular fa-clock text-[9px]"></i> ${formatSmartDate(tx.dateStr)}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <p class="font-bold font-numbers text-${col}-400 text-[15px]" dir="ltr">${sign}${formatMoney(tx.amount)}</p>
+                        <button type="button" onclick="haptic(); deleteTx(${tx.id})" class="text-[10px] text-rose-400/80 bg-rose-500/10 px-2.5 py-1 rounded-md transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-300"><i class="fa-solid fa-trash"></i> حذف</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
 
-function addPerson(phone,name,type,amt,dateObj,dateStr,desc) {
-  if (!D.people[phone]) D.people[phone]={phone,name:name||'جهة اتصال',totalIn:0,totalOut:0,txns:[]};
-  else if (name && D.people[phone].name==='جهة اتصال') D.people[phone].name=name;
-  D.people[phone].txns.push({type,amount:amt,dateObj,dateStr,desc});
-  if (type==='in') D.people[phone].totalIn+=amt;
-  else              D.people[phone].totalOut+=amt;
-}
+        function renderDebts() {
+            const list = document.getElementById('debtsList');
+            if (appData.debts.length === 0) {
+                list.innerHTML = `
+                <div class="text-center py-12 px-4 glass-panel rounded-[2rem] border-dashed border-2 border-white/10">
+                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-4 shadow-inner"><i class="fa-solid fa-handshake-angle text-2xl text-gray-500"></i></div>
+                    <p class="text-gray-300 font-bold">لا توجد ديون مسجلة</p>
+                    <p class="text-xs text-gray-500 mt-2">سجل التزاماتك المالية أو ما لك عند الآخرين هنا</p>
+                </div>`;
+                return;
+            }
 
-function addTx(cat,type,amount,dateObj,dateStr,title,subtitle) {
-  D.txns.push({cat,type,amount,dateObj,dateStr,title,subtitle});
-}
+            list.innerHTML = appData.debts.map((debt, i) => {
+                const isLent = debt.type === 'lent';
+                const col = isLent ? 'blue' : 'orange';
+                const lbl = isLent ? 'أقرضته' : 'استلفت منه';
+                const isDone = debt.remaining <= 0;
+                const progress = ((debt.amount - debt.remaining) / debt.amount) * 100;
 
-// ─── BUILD UI ────────────────────────────────────────────────────────────────
-function buildUI(firstDate, lastDate) {
-  $('empty').classList.add('hidden');
-  $('dash').classList.remove('hidden');
-  $('nav-wrapper').classList.remove('hidden');
+                let historyHTML = '';
+                if (debt.history && debt.history.length > 0) {
+                    historyHTML = `<div class="mt-4 pt-3 border-t border-white/5 space-y-2 max-h-32 overflow-y-auto hide-scrollbar">` + 
+                        debt.history.map(h => `
+                        <div class="flex justify-between items-center text-[11px] bg-slate-900/50 px-3 py-2 rounded-lg border border-white/5">
+                            <span class="text-gray-400 flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-emerald-500/50"></i>${formatSmartDate(h.date)}</span>
+                            <span class="font-numbers text-emerald-400 font-bold">+${formatMoney(h.amountPaid)}</span>
+                        </div>`).join('') + `</div>`;
+                }
 
-  setStatus(`${D.parsed} عملية`,true);
+                if (isDone) {
+                    return `
+                <div class="bg-slate-800/40 p-5 rounded-[2rem] animate-slide-up relative border border-emerald-500/20 opacity-70 transition-all hover:opacity-100" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <button type="button" onclick="haptic(); deleteDebt(${debt.id})" class="absolute top-5 left-5 w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 transition z-10 hover:bg-rose-500 hover:text-white active:scale-90 flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                    <div class="absolute -left-2 -top-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-br-xl rounded-tl-xl shadow-lg transform -rotate-12 z-10"><i class="fa-solid fa-check-double ml-1"></i>مكتمل</div>
+                    
+                    <div class="flex justify-between items-center mb-2 mt-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20"><i class="fa-solid fa-user-check text-lg"></i></div>
+                            <div><p class="text-[11px] text-gray-500 line-through">${lbl}</p><p class="font-bold text-sm text-white/80">${debt.person}</p></div>
+                        </div>
+                        <div class="text-left pr-8">
+                            <p class="font-bold font-numbers text-lg text-emerald-400 line-through">${formatMoney(debt.amount)}</p>
+                        </div>
+                    </div>
+                    ${historyHTML}
+                </div>`;
+                }
 
-  // Card
-  if (D.wallet) $('c-wallet').textContent = D.wallet.replace(/(\d{4})(\d{4})(\d+)/,'$1 $2 $3');
-  animNum($('c-balance'), D.balance, 1200, true);
+                return `
+                <div class="bg-slate-800/80 p-5 rounded-[2rem] animate-slide-up relative border border-white/5 shadow-lg" style="animation-delay: ${Math.min(i * 0.05, 0.5)}s">
+                    <button type="button" onclick="haptic(); deleteDebt(${debt.id})" class="absolute top-5 left-5 w-8 h-8 rounded-full bg-rose-500/10 text-rose-400 transition z-10 hover:bg-rose-500 hover:text-white active:scale-90 flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                    
+                    <div class="flex justify-between items-start mb-5">
+                        <div class="flex items-center gap-3 mt-1">
+                            <div class="w-14 h-14 rounded-full bg-${col}-500/10 border border-${col}-500/20 flex items-center justify-center text-${col}-400 shadow-inner"><i class="fa-solid fa-user-tag text-xl"></i></div>
+                            <div>
+                                <p class="text-[11px] text-${col}-300 mb-0.5">${lbl}</p>
+                                <p class="font-bold text-lg leading-tight mb-1 text-white/95">${debt.person}</p>
+                                <p class="text-[10px] text-gray-500 flex items-center gap-1"><i class="fa-regular fa-clock"></i> ${formatSmartDate(debt.dateStr)}</p>
+                            </div>
+                        </div>
+                        <div class="text-left bg-slate-900/60 px-4 py-2.5 rounded-2xl border border-white/5 mt-1">
+                            <p class="text-[10px] text-gray-400 mb-1">الأصلي: ${formatMoney(debt.amount)}</p>
+                            <p class="font-bold font-numbers text-xl text-${col}-400 leading-none">${formatMoney(debt.remaining)}</p>
+                            <p class="text-[9px] text-gray-500 mt-1 text-center">المتبقي</p>
+                        </div>
+                    </div>
 
-  // Home stats
-  animNum($('h-in'),  D.inflow,  900);
-  animNum($('h-out'), D.outflow, 900);
-  animNum($('st-atm'), D.atm, 800);
-  animNum($('st-dep'), D.dep, 800);
-  animNum($('st-tel'), D.tel, 800);
-  animNum($('st-onl'), D.onl, 800);
-  animNum($('st-fee'), D.fees, 800);
-  $('tx-count').textContent = `${D.parsed} عملية`;
+                    <div class="mb-5">
+                        <div class="flex justify-between text-[11px] mb-2 px-1 text-gray-400">
+                            <span>نسبة السداد</span>
+                            <span class="font-numbers font-bold text-white/70">${progress.toFixed(0)}%</span>
+                        </div>
+                        <div class="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden shadow-inner border border-white/5"><div class="h-full bg-gradient-to-r from-${col}-600 to-${col}-400 rounded-full transition-all duration-1000 relative" style="width: ${progress}%"><div class="absolute inset-0 bg-white/20 w-full animate-pulse"></div></div></div>
+                    </div>
+                    
+                    <button type="button" onclick="haptic(); openRepayModal(${debt.id})" class="w-full bg-${col}-500/10 hover:bg-${col}-500/20 text-${col}-300 py-3.5 rounded-xl text-sm font-bold transition-all border border-${col}-500/20 flex justify-center items-center gap-2 active:scale-95"><i class="fa-solid fa-coins"></i> تسجيل دفعة سداد</button>
+                    
+                    ${historyHTML}
+                </div>`;
+            }).join('');
+        }
 
-  // Cashflow bars
-  const tot = D.inflow + D.outflow || 1;
-  setTimeout(()=>{
-    $('bar-in').style.width  = `${(D.inflow/tot*100)}%`;
-    $('bar-out').style.width = `${(D.outflow/tot*100)}%`;
-  }, 300);
+        function addTransaction(e) {
+            e.preventDefault();
+            const tx = {
+                id: Date.now(),
+                type: document.querySelector('input[name="txType"]:checked').value,
+                dateStr: document.getElementById('txDate').value,
+                amount: parseFloat(document.getElementById('txAmount').value),
+                category: document.getElementById('txCategory').value
+            };
+            appData.transactions.push(tx);
+            haptic();
+            document.getElementById('txForm').reset(); setTodayDefault(); closeModal('transactionModal'); updateUI(); showToast('تم الحفظ بنجاح');
+        }
 
-  // Sparkline
-  renderSparkline();
+        function addDebt(e) {
+            e.preventDefault();
+            const type = document.querySelector('input[name="debtType"]:checked').value;
+            const amount = parseFloat(document.getElementById('debtAmount').value);
+            const person = document.getElementById('debtPerson').value;
+            const dateStr = document.getElementById('debtDate').value;
+            const affectWallet = document.getElementById('affectWalletToggle').checked;
 
-  // Lists
-  allTxFiltered = [...D.txns];
-  renderTxList(allTxFiltered);
-  renderPeopleList(peopleArr);
-  renderAnalytics();
-  $('ppl-count').textContent = peopleArr.length;
-}
+            const debt = { id: Date.now(), type, person, amount, remaining: amount, dateStr, history: [], isPaid: false };
+            appData.debts.push(debt);
 
-// ─── SPARKLINE ───────────────────────────────────────────────────────────────
-function renderSparkline() {
-  const hist = D.balHist;
-  if (hist.length < 2) { $('sparkSection').classList.add('hidden'); return; }
-  $('sparkSection').classList.remove('hidden');
-  const vals = hist.map(h=>h.b);
-  const min = Math.min(...vals), max = Math.max(...vals);
-  const range = max-min||1;
-  const W=300, H=60, PAD=4;
+            if (affectWallet) {
+                appData.transactions.push({
+                    id: Date.now() + 1,
+                    type: type === 'lent' ? 'expense' : 'income',
+                    amount: amount,
+                    category: type === 'lent' ? `قرض لـ (${person})` : `سلف من (${person})`,
+                    dateStr: dateStr
+                });
+            }
 
-  const pts = hist.map((h,i) => {
-    const x = PAD + (i/(hist.length-1))*(W-PAD*2);
-    const y = PAD + (1-(h.b-min)/range)*(H-PAD*2);
-    return [x,y];
-  });
-  const pathD = pts.map((p,i)=>i===0?`M${p[0]},${p[1]}`:`L${p[0]},${p[1]}`).join(' ');
-  const areaD = `M${PAD},${H} ${pts.map(p=>`L${p[0]},${p[1]}`).join(' ')} L${W-PAD},${H} Z`;
+            haptic();
+            document.getElementById('debtForm').reset(); setTodayDefault(); closeModal('debtModal'); switchTab('debts'); updateUI(); showToast('تم تسجيل الدين بنجاح');
+        }
 
-  $('sparkContainer').innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" class="w-full h-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="sg" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#E60000" stop-opacity=".7"/>
-          <stop offset="100%" stop-color="#ff5555" stop-opacity=".9"/>
-        </linearGradient>
-        <linearGradient id="sag" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#E60000" stop-opacity=".25"/>
-          <stop offset="100%" stop-color="#E60000" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path class="spark-area" d="${areaD}"/>
-      <path class="spark-path" d="${pathD}"/>
-      <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3" fill="#ff5555"/>
-    </svg>`;
+        function openRepayModal(debtId) {
+            const debt = appData.debts.find(d => d.id === debtId);
+            document.getElementById('repayDebtId').value = debtId;
+            document.getElementById('repaymentPersonName').innerText = `المستفيد: ${debt.person}`;
+            document.getElementById('repayMaxAmount').innerText = formatMoney(debt.remaining);
+            document.getElementById('repayAmount').value = ''; // Let user type it
+            closeActionMenu(); openModal('repaymentModal');
+        }
 
-  const f=hist[0].t, l=hist[hist.length-1].t;
-  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  $('spark-range').textContent = `${f.getDate()} ${months[f.getMonth()]} — ${l.getDate()} ${months[l.getMonth()]}`;
-}
+        function addRepayment(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('repayDebtId').value);
+            const amount = parseFloat(document.getElementById('repayAmount').value);
+            const date = document.getElementById('repayDate').value;
+            const affectWallet = document.getElementById('repayAffectWallet').checked;
 
-// ─── ANALYTICS ───────────────────────────────────────────────────────────────
-function renderAnalytics() {
-  // Monthly chart
-  const months = Object.keys(D.monthly).sort();
-  if (months.length > 0) {
-    const allVals = months.flatMap(m=>[D.monthly[m].in, D.monthly[m].out]);
-    const maxV = Math.max(...allVals, 1);
-    const monthNames = {
-      '01':'يناير','02':'فبراير','03':'مارس','04':'أبريل','05':'مايو','06':'يونيو',
-      '07':'يوليو','08':'أغسطس','09':'سبتمبر','10':'أكتوبر','11':'نوفمبر','12':'ديسمبر'
-    };
-    const cols = months.map((mk,i) => {
-      const {in:inc,out:outc}=D.monthly[mk];
-      const inH=Math.max((inc/maxV)*100,2), outH=Math.max((outc/maxV)*100,2);
-      const label=monthNames[mk.slice(5)]||mk.slice(5);
-      return `<div class="flex flex-col items-center gap-0.5 flex-1 min-w-[32px]" style="animation-delay:${i*60}ms">
-        <div class="w-full flex gap-0.5 items-end" style="height:100px">
-          <div class="bar-col flex-1 rounded-t-sm bg-emerald-500/60 hover:bg-emerald-400/80 transition cursor-default" style="height:${inH}%;animation-delay:${i*60}ms" title="وارد: ${fmt(inc)}"></div>
-          <div class="bar-col flex-1 rounded-t-sm bg-voda-red/60 hover:bg-voda-red/90 transition cursor-default" style="height:${outH}%;animation-delay:${i*60+30}ms" title="صادر: ${fmt(outc)}"></div>
-        </div>
-        <div class="text-[8px] text-gray-600 text-center leading-tight">${label}</div>
-      </div>`;
-    }).join('');
-    $('monthly-chart').innerHTML = `<div class="flex items-end gap-1.5 w-full" style="height:110px">${cols}</div>`;
-  }
+            const debt = appData.debts.find(d => d.id === id);
 
-  // Category breakdown
-  const cats = [
-    {label:'تحويلات صادرة', val: D.txns.filter(t=>t.cat==='transfer_out').reduce((s,t)=>s+t.amount,0), color:'#fff',icon:'fa-arrow-up'},
-    {label:'شحن وفواتير',    val: D.tel, color:'#60a5fa', icon:'fa-mobile-screen'},
-    {label:'سحب ATM',         val: D.atm, color:'#9ca3af', icon:'fa-money-bill'},
-    {label:'مدفوعات أونلاين', val: D.onl, color:'#c084fc', icon:'fa-globe'},
-    {label:'إيداعات',         val: D.dep, color:'#34d399', icon:'fa-circle-arrow-down'},
-  ].filter(c=>c.val>0);
-  const totCat = cats.reduce((s,c)=>s+c.val,0)||1;
-  $('cat-breakdown').innerHTML = cats.map(c=>{
-    const pct = Math.round(c.val/totCat*100);
-    return `<div>
-      <div class="flex justify-between items-center mb-1.5">
-        <span class="text-[11px] font-bold text-gray-300 flex items-center gap-2"><i class="fa-solid ${c.icon} text-[10px]" style="color:${c.color}"></i>${c.label}</span>
-        <span class="text-[11px] font-mono text-gray-400">${pct}% · <span style="color:${c.color}">${fmt(c.val)}</span></span>
-      </div>
-      <div class="prog"><div class="prog-fill" style="width:${pct}%;background:${c.color};box-shadow:0 0 6px ${c.color}66"></div></div>
-    </div>`;
-  }).join('');
+            if (amount > debt.remaining) {
+                showToast('عفواً! المبلغ المدخل أكبر من المتبقي', 'error');
+                return;
+            }
 
-  // Key metrics
-  const allAmts = D.txns.map(t=>t.amount);
-  const avgAmt = allAmts.length ? allAmts.reduce((s,a)=>s+a,0)/allAmts.length : 0;
-  const maxAmt = allAmts.length ? Math.max(...allAmts) : 0;
-  const outCount = D.txns.filter(t=>t.type==='out').length;
-  const inCount  = D.txns.filter(t=>t.type==='in').length;
-  const metrics = [
-    {label:'متوسط العملية',    val:fmt(avgAmt)+' جنيه', icon:'fa-chart-bar',     color:'#c084fc'},
-    {label:'أكبر عملية',        val:fmt(maxAmt)+' جنيه', icon:'fa-trophy',         color:'#facc15'},
-    {label:'عمليات صادرة',     val:`${outCount} عملية`,  icon:'fa-arrow-up',       color:'#f87171'},
-    {label:'عمليات واردة',     val:`${inCount} عملية`,   icon:'fa-arrow-down',     color:'#34d399'},
-    {label:'رصيد جهات الاتصال', val:`${peopleArr.length} شخص`,icon:'fa-users',     color:'#60a5fa'},
-  ];
-  $('key-metrics').innerHTML = metrics.map(m=>
-    `<div class="flex items-center justify-between py-1">
-      <span class="text-[11px] text-gray-400 flex items-center gap-2.5"><i class="fa-solid ${m.icon} w-4 text-center" style="color:${m.color}"></i>${m.label}</span>
-      <span class="font-mono text-[12px] font-bold text-white">${m.val}</span>
-    </div>`
-  ).join('<div class="border-b border-white/5"></div>');
+            debt.remaining = Math.round((debt.remaining - amount) * 100) / 100;
+            debt.history.push({ date, amountPaid: amount });
 
-  // Top contacts
-  const top5 = [...peopleArr].sort((a,b)=>(b.totalIn+b.totalOut)-(a.totalIn+a.totalOut)).slice(0,5);
-  const maxVol = top5[0] ? top5[0].totalIn+top5[0].totalOut : 1;
-  $('top-contacts').innerHTML = top5.map((p,i)=>{
-    const vol=p.totalIn+p.totalOut;
-    const pct=Math.round(vol/maxVol*100);
-    return `<div onclick="openPerson('${p.phone}')" class="cursor-pointer hover:bg-white/5 transition rounded-xl p-2 -mx-2">
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="text-[11px] font-bold text-white flex items-center gap-2">
-          <span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-mono font-bold text-gray-400">${i+1}</span>
-          ${p.name}
-        </span>
-        <span class="font-mono text-[11px] text-gray-400">${fmt(vol)} ج</span>
-      </div>
-      <div class="prog"><div class="prog-fill bg-white/30" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-}
+            if (affectWallet) {
+                appData.transactions.push({
+                    id: Date.now(),
+                    type: debt.type === 'lent' ? 'income' : 'expense',
+                    amount: amount,
+                    category: `سداد دين من/إلى (${debt.person})`,
+                    dateStr: date
+                });
+            }
 
-// ─── TRANSACTION LIST ─────────────────────────────────────────────────────────
-const catMeta = {
-  transfer_in:  {icon:'fa-arrow-down',     bg:'rgba(16,185,129,.1)',  color:'#34d399'},
-  transfer_out: {icon:'fa-arrow-up',       bg:'rgba(255,255,255,.06)',color:'#fff'},
-  withdrawal:   {icon:'fa-money-bill-wave',bg:'rgba(156,163,175,.08)',color:'#9ca3af'},
-  deposit:      {icon:'fa-circle-arrow-down',bg:'rgba(16,185,129,.1)',color:'#34d399'},
-  telecom:      {icon:'fa-mobile-screen',  bg:'rgba(96,165,250,.1)',  color:'#60a5fa'},
-  online:       {icon:'fa-globe',          bg:'rgba(192,132,252,.1)', color:'#c084fc'},
-};
+            haptic();
+            document.getElementById('repayForm').reset();
+            setTodayDefault();
+            closeModal('repaymentModal');
+            updateUI();
 
-function renderTxList(txns) {
-  const el=$('tx-list');
-  if (!txns.length) { el.innerHTML=`<div class="text-center py-12 panel rounded-3xl"><i class="fa-solid fa-receipt text-4xl text-gray-700 mb-3 block"></i><p class="text-gray-500 text-sm">لا توجد عمليات مطابقة</p></div>`; return; }
-  el.innerHTML = txns.map((tx,i)=>{
-    const m = catMeta[tx.cat]||catMeta.telecom;
-    const isIn = tx.type==='in';
-    const delay = Math.min(i*18,400);
-    return `<div class="panel rounded-2xl p-4 flex items-center gap-3.5 hover:bg-white/5 transition anim-up" style="animation-delay:${delay}ms">
-      <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-white/5" style="background:${m.bg}">
-        <i class="fa-solid ${m.icon} text-sm" style="color:${m.color}"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="font-bold text-[13px] text-white truncate">${tx.title}</div>
-        <div class="text-[10px] text-gray-500 mt-0.5 font-mono truncate">${tx.subtitle} · ${fmtDate(tx.dateStr)}</div>
-      </div>
-      <div class="font-mono font-bold text-[14px] shrink-0 ${isIn?'text-emerald-400':'text-white'}" dir="ltr">${isIn?'+':'-'}${fmt(tx.amount)}</div>
-    </div>`;
-  }).join('');
-}
+            if (debt.remaining <= 0) showToast('🎉 تم سداد الدين بالكامل');
+            else showToast('تم تسجيل الدفعة بنجاح');
+        }
 
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
-function setMainFilter(type) {
-  mainFilter=type; subFilter='all';
-  ['all','in','out'].forEach(f=>{
-    const b=$(`mf-${f}`);
-    b.className=`chip-btn ${f===type?'on':'off'}`;
-  });
-  renderSubFilters();
-  applyFilters();
-}
+        function deleteTx(id) {
+            if (confirm('هل أنت متأكد من حذف هذه المعاملة؟')) {
+                appData.transactions = appData.transactions.filter(t => t.id !== id);
+                updateUI();
+                showToast('تم الحذف بنجاح');
+            }
+        }
 
-function renderSubFilters() {
-  const row=$('sf-row');
-  if (mainFilter==='all') { row.classList.add('hidden'); return; }
-  row.classList.remove('hidden');
-  const defs = mainFilter==='out'
-    ? [{id:'all',label:'الكل'},{id:'transfer_out',label:'تحويلات'},{id:'telecom_out',label:'شحن وفواتير'},{id:'online',label:'أونلاين'},{id:'withdrawal',label:'ATM'}]
-    : [{id:'all',label:'الكل'},{id:'transfer_in',label:'تحويلات واردة'},{id:'telecom_in',label:'شحن وارد'},{id:'deposit',label:'إيداعات'}];
-  row.innerHTML = defs.map(d=>`<button onclick="setSubFilter('${d.id}')" id="sf-${d.id}" class="chip-btn ${d.id===subFilter?'on':'off'}">${d.label}</button>`).join('');
-}
+        function deleteDebt(id) {
+            if (confirm('هل تريد حذف هذا الدين وسجل دفعاته نهائياً؟\n(ملاحظة: لن تتأثر المحفظة الأساسية بهذا الحذف)')) {
+                appData.debts = appData.debts.filter(d => d.id !== id);
+                updateUI();
+                showToast('تم الحذف بنجاح');
+            }
+        }
 
-function setSubFilter(cat) {
-  subFilter=cat;
-  document.querySelectorAll('[id^="sf-"]').forEach(b=>b.className=`chip-btn ${b.id===`sf-${cat}`?'on':'off'}`);
-  applyFilters();
-}
+        function switchTab(tab) {
+            document.getElementById('transactionsList').classList.add('hidden'); 
+            document.getElementById('debtsList').classList.add('hidden');
+            
+            // Reset nav styles
+            document.getElementById('nav-tx').classList.replace('text-indigo-400', 'text-gray-500'); 
+            document.getElementById('nav-debts').classList.replace('text-indigo-400', 'text-gray-500');
+            document.getElementById('nav-tx-indicator').classList.add('opacity-0');
+            document.getElementById('nav-debts-indicator').classList.add('opacity-0');
 
-function filterTxSearch() {
-  applyFilters();
-}
+            // Set Active styles
+            document.getElementById(`${tab}List`).classList.remove('hidden');
+            document.getElementById(`nav-${tab === 'transactions' ? 'tx' : 'debts'}`).classList.replace('text-gray-500', 'text-indigo-400');
+            document.getElementById(`nav-${tab === 'transactions' ? 'tx' : 'debts'}-indicator`).classList.remove('opacity-0');
+            
+            document.getElementById('listTitle').innerText = tab === 'transactions' ? 'آخر المعاملات' : 'سجل الديون';
+            document.getElementById('listCount').innerText = tab === 'transactions' ? appData.transactions.length : appData.debts.length;
+        }
 
-function applyFilters() {
-  const q=$('tx-search').value.toLowerCase();
-  let filtered = D.txns.filter(tx=>{
-    if (mainFilter==='in'&&tx.type!=='in') return false;
-    if (mainFilter==='out'&&tx.type!=='out') return false;
-    if (subFilter!=='all') {
-      if (subFilter==='telecom_out') return tx.cat==='telecom'&&tx.type==='out';
-      if (subFilter==='telecom_in')  return tx.cat==='telecom'&&tx.type==='in';
-      if (tx.cat!==subFilter) return false;
-    }
-    if (q) {
-      const haystack=(tx.title+tx.subtitle+tx.dateStr).toLowerCase();
-      if (!haystack.includes(q)) return false;
-    }
-    return true;
-  });
-  allTxFiltered=filtered;
-  renderTxList(filtered);
-}
+        function toggleActionMenu(e) {
+            e.stopPropagation();
+            const m = document.getElementById('actionMenu'), i = document.getElementById('plusIcon');
+            if (m.classList.contains('hidden')) {
+                m.classList.remove('hidden');
+                setTimeout(() => { m.classList.remove('scale-95', 'opacity-0'); m.classList.add('flex'); i.style.transform = 'rotate(45deg)'; }, 10);
+            } else closeActionMenu();
+        }
 
-// ─── PEOPLE ──────────────────────────────────────────────────────────────────
-function renderPeopleList(arr) {
-  const el=$('ppl-list');
-  if (!arr.length) { el.innerHTML=`<div class="text-center py-12 panel rounded-3xl"><i class="fa-solid fa-address-book text-4xl text-gray-700 mb-3 block"></i><p class="text-gray-500 text-sm">لا توجد جهات اتصال</p></div>`; return; }
-  el.innerHTML = arr.map((p,i)=>{
-    const net=p.totalIn-p.totalOut, pos=net>=0;
-    const delay=Math.min(i*18,400);
-    return `<div onclick="openPerson('${p.phone}')" class="panel rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition anim-up" style="animation-delay:${delay}ms">
-      <div class="w-11 h-11 rounded-full glass flex items-center justify-center text-gray-400 shrink-0"><i class="fa-solid fa-user text-sm"></i></div>
-      <div class="flex-1 min-w-0">
-        <div class="font-bold text-[13px] text-white truncate">${p.name}</div>
-        <div class="text-[10px] font-mono text-gray-500 mt-0.5 tracking-wider">${p.phone}</div>
-      </div>
-      <div class="text-right shrink-0">
-        <div class="text-[9px] text-gray-600 font-bold mb-0.5">الصافي</div>
-        <div class="font-mono font-bold text-[13px] ${pos?'text-emerald-400':'text-white'}" dir="ltr">${pos?'+':''}${fmt(net)}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
+        function closeActionMenu() {
+            const m = document.getElementById('actionMenu'), i = document.getElementById('plusIcon');
+            if (!m.classList.contains('hidden')) {
+                m.classList.add('scale-95', 'opacity-0');
+                i.style.transform = 'rotate(0deg)';
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 200);
+            }
+        }
 
-function filterPeople() {
-  const q=$('ppl-search').value.toLowerCase();
-  renderPeopleList(peopleArr.filter(p=>p.name.toLowerCase().includes(q)||p.phone.includes(q)));
-}
+        document.addEventListener('click', (e) => { if (!document.getElementById('fabContainer').contains(e.target)) closeActionMenu(); });
 
-function openPerson(phone) {
-  const p=D.people[phone]; if(!p) return;
-  $('m-name').textContent=p.name;
-  $('m-phone').textContent=p.phone;
-  const net=p.totalIn-p.totalOut, pos=net>=0;
-  $('m-net').textContent=(pos?'+':'')+fmt(net);
-  $('m-net').style.color=pos?'#34d399':'#fff';
-  $('m-bar').style.background=pos?'#10b981':'var(--red)';
-  $('m-label').textContent=pos?'المتبقي لك':'المتبقي عليك';
-  $('m-totIn').textContent=fmt(p.totalIn);
-  $('m-totOut').textContent=fmt(p.totalOut);
+        function openModal(id) {
+            closeActionMenu();
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('modal-active');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
 
-  const sorted=[...p.txns].sort((a,b)=>b.dateObj-a.dateObj);
-  $('m-txlist').innerHTML=sorted.map(tx=>{
-    const isIn=tx.type==='in';
-    return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:#0d0d0d;border:1px solid var(--border)">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style="background:${isIn?'rgba(16,185,129,.1)':'rgba(255,255,255,.06)'}">
-        <i class="fa-solid ${isIn?'fa-arrow-down':'fa-arrow-up'} text-[10px]" style="color:${isIn?'#34d399':'#fff'}"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="text-[12px] font-bold text-white truncate">${tx.desc}</div>
-        <div class="text-[10px] font-mono text-gray-500 mt-0.5">${fmtDate(tx.dateStr)}</div>
-      </div>
-      <div class="font-mono font-bold text-[13px] shrink-0 ${isIn?'text-emerald-400':'text-white'}" dir="ltr">${isIn?'+':'-'}${fmt(tx.amount)}</div>
-    </div>`;
-  }).join('');
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 400);
+        }
 
-  const modal=$('pModal');
-  modal.classList.remove('hidden');
-  document.body.style.overflow='hidden';
-  requestAnimationFrame(()=>modal.classList.add('open'));
-}
+        function exportData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([dataStr], { type: "application/json" }));
+            a.download = `SmartWallet_Backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); showToast('تم تصدير النسخة الاحتياطية');
+        }
 
-function closeModal() {
-  const modal=$('pModal');
-  modal.classList.remove('open');
-  setTimeout(()=>{ modal.classList.add('hidden'); document.body.style.overflow=''; },450);
-}
+        function importData(e) {
+            const file = e.target.files[0]; if (!file) return;
+            
+            // تحذير الأمان قبل المسح
+            if (appData.transactions.length > 0 || appData.debts.length > 0) {
+                if (!confirm("⚠️ تحذير: استيراد بيانات جديدة سيمسح بياناتك الحالية. هل أنت متأكد من الاستمرار؟")) {
+                    e.target.value = '';
+                    return;
+                }
+            }
 
-// ─── TAB NAV ─────────────────────────────────────────────────────────────────
-function goTab(tab) {
-  ['home','transactions','people','analytics'].forEach(t=>{
-    $(`v-${t}`).classList.toggle('hidden', t!==tab);
-    $(`nb-${t}`).classList.toggle('active', t===tab);
-  });
-  const view=$(`v-${tab}`);
-  view.classList.remove('anim-fade');
-  void view.offsetWidth;
-  view.classList.add('anim-fade');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if (tab==='transactions') { applyFilters(); }
-}
-</script>
+            const r = new FileReader();
+            r.onload = function (ev) {
+                try {
+                    const d = JSON.parse(ev.target.result);
+                    if (d.transactions && d.debts) {
+                        appData = d;
+                        appData.debts.forEach(debt => {
+                            if (debt.remaining === undefined) debt.remaining = debt.isPaid ? 0 : debt.amount;
+                            if (!debt.history) debt.history = [];
+                        });
+                        updateUI();
+                        haptic();
+                        showToast('تم استعادة البيانات بنجاح');
+                    } else { throw new Error('Invalid format'); }
+                } catch (err) { showToast('عفواً، ملف النسخة الاحتياطية غير صالح!', 'error'); }
+            };
+            r.readAsText(file); e.target.value = '';
+        }
+
+        window.onload = init;
+    </script>
 </body>
 </html>
